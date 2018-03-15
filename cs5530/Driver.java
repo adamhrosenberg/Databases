@@ -5,42 +5,43 @@ import java.lang.*;
 import java.sql.*;
 import java.io.*;
 
-public class testdriver2 {
+public class Driver {
 
 	/**
 	 * @param args
 	 */
-	public static void displayMenu()
+
+	private static UU user;
+	public static void displayInitialMenu()
 	{
 		 System.out.println("        Welcome to UUber System     ");
     	 System.out.println("1. search a course by cname and dname:");
     	 System.out.println("2. enter your own query:");
     	 System.out.println("3. exit:");
-    	 System.out.println("please enter your choice:");
+    	 System.out.println("Enter your choice:");
 	}
 	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		System.out.println("New Example for cs5530");
-		Connector2 con=null;
+		Connector con=null;
 		String choice;
         String cname;
         String dname;
         String sql=null;
+
         int c=0;
-		System.out.println("Trying to connect");
-         try
+        try
 		 {
 			//remember to replace the password
 
-			 	 con= new Connector2();
+			 	 con= new Connector();
 	             System.out.println ("Database connection established");
 	         
 	             BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 	             
 	             while(true)
 	             {
-	            	 displayMenu();
+	            	 displayInitialMenu();
 	            	 while ((choice = in.readLine()) == null && choice.length() == 0);
 	            	 try{
 	            		 c = Integer.parseInt(choice);
@@ -49,16 +50,16 @@ public class testdriver2 {
 	            		 
 	            		 continue;
 	            	 }
-	            	 if (c<1 | c>3)
-	            		 continue;
+//	            	 if (c<1 | c>3)
+//	            		 continue;
 	            	 if (c==1)
 	            	 {
 	            		 System.out.println("please enter a cname:");
 	            		 while ((cname = in.readLine()) == null && cname.length() == 0);
 	            		 System.out.println("please enter a dname:");
 	            		 while ((dname = in.readLine()) == null && dname.length() == 0);
-	            		 Course course=new Course();
-	            		 System.out.println(course.getCourse(cname, dname, con.stmt));
+//	            		 Course course=new Course();
+//	            		 System.out.println(course.getCourse(cname, dname, con.stmt));
 	            	 }
 	            	 else if (c==2)
 	            	 {	 
