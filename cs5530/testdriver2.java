@@ -16,22 +16,24 @@ public class testdriver2 {
     	 System.out.println("1. search a course by cname and dname:");
     	 System.out.println("2. enter your own query:");
     	 System.out.println("3. exit:");
-    	 System.out.println("pleasse enter your choice:");
+    	 System.out.println("please enter your choice:");
 	}
 	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		System.out.println("Example for cs5530");
-		Connector con=null;
+		System.out.println("New Example for cs5530");
+		Connector2 con=null;
 		String choice;
         String cname;
         String dname;
         String sql=null;
         int c=0;
+		System.out.println("Trying to connect");
          try
 		 {
 			//remember to replace the password
-			 	 con= new Connector();
+
+			 	 con= new Connector2();
 	             System.out.println ("Database connection established");
 	         
 	             BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
