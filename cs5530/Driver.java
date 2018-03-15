@@ -4,6 +4,39 @@ package cs5530;
 import java.lang.*;
 import java.sql.*;
 import java.io.*;
+import java.util.Scanner;
+
+/**
+ * ENUM for reading in the resposnes from the user for the login/initial menu.
+ */
+enum LOGIN_RESPONSES{
+    LOGIN(1), REGISTER(2);
+
+    private int value;
+    private LOGIN_RESPONSES(int value){
+        this.value = value;
+    }
+
+    public int getValue(){
+        return this.value;
+    }
+}
+
+/**
+ * ENUM for reading in the responses from the user for the logged in menu.
+ */
+enum MENU_RESPONSES{
+    RESERVE(1), NEWUC(2);
+
+    private int value;
+    private LOGIN_RESPONSES(int value){
+        this.value = value;
+    }
+
+    public int getValue(){
+        return this.value;
+    }
+}
 
 public class Driver {
 
@@ -15,11 +48,15 @@ public class Driver {
 	public static void displayInitialMenu()
 	{
 		 System.out.println("        Welcome to UUber System     ");
-    	 System.out.println("1. search a course by cname and dname:");
-    	 System.out.println("2. enter your own query:");
-    	 System.out.println("3. exit:");
+    	 System.out.println("1. Login");
+    	 System.out.println("2. Register");
+    	 System.out.println("3. Exit");
     	 System.out.println("Enter your choice:");
 	}
+
+	public static void promptLogin(){
+
+    }
 	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
@@ -52,32 +89,13 @@ public class Driver {
 	            	 }
 //	            	 if (c<1 | c>3)
 //	            		 continue;
-	            	 if (c==1)
+	            	 if (c==LOGIN_RESPONSES.LOGIN.getValue())
 	            	 {
-	            		 System.out.println("please enter a cname:");
-	            		 while ((cname = in.readLine()) == null && cname.length() == 0);
-	            		 System.out.println("please enter a dname:");
-	            		 while ((dname = in.readLine()) == null && dname.length() == 0);
-//	            		 Course course=new Course();
-//	            		 System.out.println(course.getCourse(cname, dname, con.stmt));
+
 	            	 }
-	            	 else if (c==2)
-	            	 {	 
-	            		 System.out.println("please enter your query below:");
-	            		 while ((sql = in.readLine()) == null && sql.length() == 0)
-	            			 System.out.println(sql);
-	            		 ResultSet rs=con.stmt.executeQuery(sql);
-	            		 ResultSetMetaData rsmd = rs.getMetaData();
-	            		 int numCols = rsmd.getColumnCount();
-	            		 while (rs.next())
-	            		 {
-	            			 //System.out.print("cname:");
-	            			 for (int i=1; i<=numCols;i++)
-	            				 System.out.print(rs.getString(i)+"  ");
-	            			 System.out.println("");
-	            		 }
-	            		 System.out.println(" ");
-	            		 rs.close();
+	            	 else if (c==LOGIN_RESPONSES.REGISTER.getValue())
+	            	 {
+	            	     getUserInfo(con.stmt);
 	            	 }
 	            	 else
 	            	 {   
@@ -107,4 +125,52 @@ public class Driver {
         	 }	 
          }
 	}
+
+	private static void getUserInfo(Statement stmt){
+        //create new user to pass into user.createUser. get login, address, etc.
+        String login = promptUserForString("Enter username:");
+
+        //TODO make sure username is unique. if not unique call this method again (probs)
+
+        String first = promptUserForString("Enter first name:");
+        String last = promptUserForString("Enter last name:");
+        String address = promptUserForString("Enter address");
+        String num = promptUserForString("Enter phone number: i.e. 8015555555");
+        String pass = promptUserForString("Enter password");
+
+    }
+
+
+    /******
+     *  I/O METHODS
+     ******/
+
+
+    /**
+     *
+     * @param message
+     * @return users response
+     */
+	private static String promptUserForString(String message){
+        System.out.println(message);
+        Scanner scanner = new Scanner(System.in);
+	    return scanner.nextLine();
+    }
 }
+
+
+//	            		 System.out.println("please enter your query below:");
+//	            		 while ((sql = in.readLine()) == null && sql.length() == 0)
+//	            			 System.out.println(sql);
+//	            		 ResultSet rs=con.stmt.executeQuery(sql);
+//	            		 ResultSetMetaData rsmd = rs.getMetaData();
+//	            		 int numCols = rsmd.getColumnCount();
+//	            		 while (rs.next())
+//	            		 {
+//	            			 //System.out.print("cname:");
+//	            			 for (int i=1; i<=numCols;i++)
+//	            				 System.out.print(rs.getString(i)+"  ");
+//	            			 System.out.println("");
+//	            		 }
+//	            		 System.out.println(" ");
+//	            		 rs.close();
