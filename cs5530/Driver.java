@@ -29,7 +29,7 @@ enum MENU_RESPONSES{
     RESERVE(1), NEWUC(2);
 
     private int value;
-    private LOGIN_RESPONSES(int value){
+    private MENU_RESPONSES(int value){
         this.value = value;
     }
 
@@ -138,6 +138,8 @@ public class Driver {
         String num = promptUserForString("Enter phone number: i.e. 8015555555");
         String pass = promptUserForString("Enter password");
 
+        UU user = new UU(login, first, last, address, num, pass);
+        UU.createUser(user, stmt);
     }
 
 

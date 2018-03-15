@@ -48,11 +48,12 @@ public class UU {
         String query = "insert into UU (login, name, address, phone) values ('" +
                 user.getLogin() + "', '" +
                 user.getFullName() + "', '" +
-                user.getAddress() + "', ," +
-                user.getNum() + "';";
+                user.getAddress() + "', '" +
+                user.getNum() + "');";
 
+        System.out.println(query);
         try {
-            ResultSet rs = stmt.executeQuery(query);
+            stmt.execute(query);
             //check result somehow before returning true. TODO.
             return true;
         } catch (Exception e){
