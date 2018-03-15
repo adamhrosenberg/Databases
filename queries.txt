@@ -1,0 +1,13 @@
+Below are helpful queries when using the database (add to this as time goes on). It may also be useful to put the queries from the assignment in here
+
+use 5530db47;
+
+show tables;
+
+describe UU;
+
+describe UD;
+
+describe UC;
+
+show create table UC;
