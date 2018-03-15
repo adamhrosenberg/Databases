@@ -53,13 +53,45 @@ public class UU {
 
         System.out.println(query);
         try {
-            stmt.execute(query);
+            boolean result = stmt.execute(query);
             //check result somehow before returning true. TODO.
-            return true;
+
+            return result;
         } catch (Exception e){
             System.err.println("There was an error creating the user" + e);
             return false;
         }
+    }
+
+    /**
+     *
+     * @param user
+     * @param stmt
+     * @return whether or not a user exists with this login.
+     */
+    public static boolean isLoginDuplicate(String login, Statement stmt){
+
+        ResultSet rs;
+        String query = "select * from UU where login = '" + login + "';";
+
+        try {
+            rs = stmt.executeQuery(query);
+            int r = rs.getRow();
+            ResultSetMetaData metaData = rs.getMetaData();
+//            int columncount = metaData.get();
+           if(!rs.next()){
+               //no duplicate
+               rs.beforeFirst();
+               return false;
+           }else{
+               rs.beforeFirst();
+               return true;
+           }
+
+        } catch(Exception e){
+            System.err.println("Error while checking for duplicate login field. " + e);
+        }
+    return false;
     }
 
 
@@ -76,7 +108,7 @@ public class UU {
     }
 
     public String getFullName() {
-        return this.first + this.last;
+        return this.first + " " + this.last;
     }
 
     public String getLast() {

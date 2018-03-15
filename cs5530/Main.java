@@ -38,7 +38,7 @@ enum MENU_RESPONSES{
     }
 }
 
-public class Driver {
+public class Main {
 
 	/**
 	 * @param args
@@ -130,7 +130,10 @@ public class Driver {
         //create new user to pass into user.createUser. get login, address, etc.
         String login = promptUserForString("Enter username:");
 
-        //TODO make sure username is unique. if not unique call this method again (probs)
+        if(user.isLoginDuplicate(login, stmt)){
+            System.out.println("ERROR: Login must unique. Enter another username.");
+            getUserInfo(stmt);
+        }
 
         String first = promptUserForString("Enter first name:");
         String last = promptUserForString("Enter last name:");
@@ -139,7 +142,14 @@ public class Driver {
         String pass = promptUserForString("Enter password");
 
         UU user = new UU(login, first, last, address, num, pass);
-        UU.createUser(user, stmt);
+        boolean wasCreated = UU.createUser(user, stmt);
+        if(wasCreated){
+            System.out.println("Looking good");
+
+        }else{
+            //this error wil have already be caught in UU.java. probably not needed.
+            System.err.println("Creation error");
+        }
     }
 
 
