@@ -49,7 +49,7 @@ public class Main {
 	private static UU user;
 	public static void displayInitialMenu()
 	{
-		 System.out.println("        Welcome to UUber System     ");
+		 System.out.println("        Welcome to U-Uber System     ");
     	 System.out.println("1. Login");
     	 System.out.println("2. Register");
     	 System.out.println("3. Exit");
@@ -57,7 +57,7 @@ public class Main {
 	}
 
     public static void displayLoggedInMenu(){
-        System.out.println("        USER LOGGED IN     ");
+        System.out.println("        WELCOME TO U-UBER     ");
         System.out.println("1. Reserve");
         System.out.println("2. Manage UCs");
         System.out.println("3. Record Ride");
@@ -223,7 +223,6 @@ public class Main {
                 manageUC(con);
             }else if(c == MENU_RESPONSES.RECORD.getValue()){
 
-                break;
             }else if(c == MENU_RESPONSES.FAV.getValue()){
 
             }else if(c == MENU_RESPONSES.FEEDBACK.getValue()){
@@ -257,17 +256,88 @@ public class Main {
      */
     private static void manageUC(Connector con){
 
+        // only drivers can have cars.
         if(!UD.isUserADriver(con, user)){
             System.err.println("You must be a driver to be able to manage cars");
             return;
         }
 
-        String vin = "";
-        String login = user.getLogin();
-//        String
+        boolean invalidResponse = true;
+        boolean userCreating = false;
+        while(invalidResponse){
+            String response = promptUserForString("Enter 1 to create a new UC or enter 2 to " +
+                    "edit a current UC");
+            if(response.equals("1")){
+                userCreating = true;
+                invalidResponse = false;
+            }else if(response.equals("2")){
+                userCreating = false; //therefore the user is editing.
+                invalidResponse = false;
+            }else{
+                System.err.println("Please enter a valid option, 1 or 2.");
+            }
+        }
+
+        if(userCreating){
+            createUC(con);
+        }else{
+            editUC(con);
+        }
     }
 
 
+    private static void createUC(Connector con){
+
+        String vin = "";
+        boolean incorrectVin = true;
+        while(incorrectVin){
+            vin = promptUserForString("Please enter a VIN # for your car");
+            if(UC.doesThisVinExist(con, vin)){
+                System.err.println("There already exists a car with this vin. Please enter a new one.");
+            }else{
+                incorrectVin = false;
+            }
+        }
+
+        String category = "";
+        boolean invalidResponse = true;
+        while(invalidResponse){
+            String categoryResponse = promptUserForString("Select a category: \n1. SUV\n2. Sedan\n3.Truck\n4. Tesla");
+
+            //TODO At some point maybe we should get these categories from the database
+            if(categoryResponse.equals("1")){
+                category = "SUV";
+                invalidResponse = false;
+            }else if(categoryResponse.equals("2")){
+                category = "Sedan";
+                invalidResponse = false;
+            }else if(categoryResponse.equals("3")){
+                category = "Truck";
+                invalidResponse = false;
+            }else if(categoryResponse.equals("4")){
+                category = "Tesla";
+                invalidResponse = false;
+            }else{
+                System.err.println("Please enter a valid option for the category of car. 1, 2, 3 or 4.");
+            }
+        }
+
+        UC car = UC.newUC(con, vin, category, user.getLogin());
+        if(car != null){
+            // UC created. print out the details.
+            System.out.println("Succesfully added car with these details:");
+            UC.printUC(car);
+        }else{
+            System.err.println("There was en error adding your car");
+        }
+
+    }
+
+    private static void editUC(Connector con){
+        // get the UC's a UD has and list them here. ask which one the UD wants to edit.
+        // this way we ensure that the UD is only editing UCs that the UD owns.
+
+    }
     /**
      * Used for registering a new user.
      * @param connector
