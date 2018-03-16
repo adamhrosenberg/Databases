@@ -223,7 +223,6 @@ public class Main {
                 manageUC(con);
             }else if(c == MENU_RESPONSES.RECORD.getValue()){
 
-                break;
             }else if(c == MENU_RESPONSES.FAV.getValue()){
 
             }else if(c == MENU_RESPONSES.FEEDBACK.getValue()){
@@ -289,9 +288,54 @@ public class Main {
 
     private static void createUC(Connector con){
 
+        String vin = "";
+        boolean incorrectVin = true;
+        while(incorrectVin){
+            vin = promptUserForString("Please enter a VIN # for your car");
+            if(UC.doesThisVinExist(con, vin)){
+                System.err.println("There already exists a car with this vin. Please enter a new one.");
+            }else{
+                incorrectVin = false;
+            }
+        }
+
+        String category = "";
+        boolean invalidResponse = true;
+        while(invalidResponse){
+            String categoryResponse = promptUserForString("Select a category: \n1. SUV\n2. Sedan\n3.Truck\n4. Tesla");
+
+            //TODO At some point maybe we should get these categories from the database
+            if(categoryResponse.equals("1")){
+                category = "SUV";
+                invalidResponse = false;
+            }else if(categoryResponse.equals("2")){
+                category = "Sedan";
+                invalidResponse = false;
+            }else if(categoryResponse.equals("3")){
+                category = "Truck";
+                invalidResponse = false;
+            }else if(categoryResponse.equals("4")){
+                category = "Tesla";
+                invalidResponse = false;
+            }else{
+                System.err.println("Please enter a valid option for the category of car. 1, 2, 3 or 4.");
+            }
+        }
+
+        UC car = UC.newUC(con, vin, category, user.getLogin());
+        if(car != null){
+            // UC created. print out the details.
+            System.out.println("Succesfully added car with these details:");
+            UC.printUC(car);
+        }else{
+            System.err.println("There was en error adding your car");
+        }
+
     }
 
     private static void editUC(Connector con){
+        // get the UC's a UD has and list them here. ask which one the UD wants to edit.
+        // this way we ensure that the UD is only editing UCs that the UD owns.
 
     }
     /**
