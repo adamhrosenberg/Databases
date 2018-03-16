@@ -48,11 +48,13 @@ public class UU {
 
         ResultSet rs;
 
-        String query = "insert into UU (login, name, address, phone) values ('" +
+        String query = "insert into UU (login, firstName, lastName, address, phone, password) values ('" +
                 user.getLogin() + "', '" +
-                user.getFullName() + "', '" +
+                user.getFirst() + "', '" +
+                user.getLast() + "', '" +
                 user.getAddress() + "', '" +
-                user.getNum() + "');";
+                user.getNum() + "', '" +
+                user.getPassword() + "');";
 
         try {
             int result = stmt.executeUpdate(query);
@@ -67,6 +69,50 @@ public class UU {
             System.err.println("There was an error creating the user" + e);
             return false;
         }
+    }
+
+
+    public static UU checkPassword(String login, String password, Statement stmt){
+        String query = "select * from UU where login = '" + login + "' and password = '" +
+        password + "';";
+
+        UU currentUser = null;
+        ResultSet rs;
+
+        try{
+            rs = stmt.executeQuery(query);
+            if(rs.next()){
+                // if this user is returned null, driver knows the password was incorrect.
+                currentUser = convertRsToUser(rs);
+                return currentUser;
+            }
+        }catch(Exception e){
+            System.err.println("Error loggin in" + e);
+        }
+        // if this user is returned null, driver knows the password was incorrect.
+        return currentUser;
+    }
+
+    /**
+     *
+     * @param rs
+     * @return
+     */
+    private static UU convertRsToUser(ResultSet rs){
+        UU user = null;
+        try{
+            String login = rs.getString("login");
+            String first = rs.getString("firstName");
+            String last = rs.getString("lastName");
+            String address = rs.getString("address");
+            String num = rs.getString("phone");
+            String pass = rs.getString("password");
+            user = new UU(login, first, last, address, num, pass);
+        }catch(Exception e){
+            System.err.println("Error converting RS to User " + e);
+        }
+
+        return user;
     }
 
     /**
@@ -118,6 +164,10 @@ public class UU {
         return this.first + " " + this.last;
     }
 
+    public String getPassword() {
+        return this.pass;
+    }
+
     public String getLast() {
         return this.last;
     }
@@ -128,5 +178,10 @@ public class UU {
 
     public String getNum() {
         return this.num;
+    }
+
+    public static void printUser(UU user){
+        System.out.println("Printing user: " +
+                user.getLogin() + " " + user.getFirst() + " " + user.getLast());
     }
 }

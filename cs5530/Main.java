@@ -44,6 +44,7 @@ public class Main {
 	 * @param args
 	 */
 
+	// user that just registered or is logged in.
 	private static UU user;
 	public static void displayInitialMenu()
 	{
@@ -62,10 +63,7 @@ public class Main {
         System.out.println("4. Exit");
         System.out.println("Enter your choice:");
     }
-	public static void promptLogin(){
 
-    }
-	
 	public static void main(String[] args) {
 	    //we only want ONE connector in this entire program.
         Connector connector = null;
@@ -92,16 +90,43 @@ public class Main {
 
 	}
 
-	public static void go(Connector con) throws IOException, SQLException{
-        // TODO Auto-generated method stub
+    public static void promptLogin(Connector con){
+
+	    String login = "";
+	    String password = "";
+
+	    boolean wrongUser = true;
+	    while(wrongUser){
+            login = promptUserForString("Please enter login:");
+            if(!UU.isLoginDuplicate(login, con.stmt)){
+                System.err.println("Invalid username please try again");
+            }else{
+                wrongUser = false;
+            }
+        }
+
+        boolean wrongPass = true;
+	    while(wrongPass){
+            password = promptUserForString(("Please enter password:"));
+            UU loggedUser = UU.checkPassword(login, password, con.stmt);
+
+            if(loggedUser == null){
+                System.err.println("Inocrrect password. Try again.");
+            }else{
+                //user logged in.
+                user = loggedUser;
+                wrongPass = false;
+                login(con.stmt);
+            }
+        }
+
+    }
+
+
+    public static void go(Connector con) throws IOException, SQLException{
             String choice;
-
-
             int c=0;
-
-
             System.out.println ("Database connection established");
-
             BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 
             while(true)
@@ -117,7 +142,8 @@ public class Main {
 
                 if (c==LOGIN_RESPONSES.LOGIN.getValue())
                 {
-                    login(con.stmt);
+                    promptLogin(con);
+                    break;
 
                 }
                 else if (c==LOGIN_RESPONSES.REGISTER.getValue())
@@ -126,8 +152,7 @@ public class Main {
                     break;
                 }
                 else if (c==LOGIN_RESPONSES.EXIT.getValue()){
-                    System.out.println("Closing connection");
-                    con.stmt.close();
+                    closeConnection(con);
                     break;
                 }
                 else{
@@ -138,14 +163,35 @@ public class Main {
 	}
 
 
-    private static void login(Statement stmt) throws IOException{
-        String choice;
+	private static void closeConnection(Connector con){
+        System.out.println("Closing connection");
+        try{
+            con.stmt.close();
+        }catch (Exception e){
+            System.err.println("Error closing connection" + e);
+        }
+
+    }
+
+
+    /**
+     * Once user is logged in theyre redirected to this menu.
+     * @param stmt
+     * @throws IOException
+     */
+    private static void login(Statement stmt){
+        UU.printUser(user);
+        String choice = "";
         int c=0;
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
         while(true){
             displayLoggedInMenu();
 
-            while ((choice = in.readLine()) == null && choice.length() == 0);
+            try{
+                while ((choice = in.readLine()) == null && choice.length() == 0);
+            }catch(Exception e){
+                System.err.println("Error reading input" + e);
+            }
 
             try{
                 c = Integer.parseInt(choice);
@@ -181,8 +227,7 @@ public class Main {
             if(!user.isLoginDuplicate(login, connector.stmt)){
                 duplicate = false;
             }else{
-                System.out.println("ERROR: Login must unique. Enter another username.");
-
+                System.err.println("ERROR: Login must unique. Enter another username.");
             }
         }
 
@@ -192,10 +237,12 @@ public class Main {
         String num = promptUserForString("Enter phone number: i.e. 8015555555 ");
         String pass = promptUserForString("Enter password: ");
 
-        UU user = new UU(login, first, last, address, num, pass);
-        boolean wasCreated = UU.createUser(user, connector.stmt);
+        UU userToCreate = new UU(login, first, last, address, num, pass);
+        boolean wasCreated = UU.createUser(userToCreate, connector.stmt);
 
         if(wasCreated){
+            // set driver's user to the user that was created / registered
+            user = userToCreate;
             login(connector.stmt);
         }else{
             //this error wil have already be caught in UU.java. probably not needed.
