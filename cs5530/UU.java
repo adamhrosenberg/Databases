@@ -43,7 +43,10 @@ public class UU {
      * @return whether or not creation was succesful
      */
     public static boolean createUser(UU user, Statement stmt){
-        //TODO check for uniqueness.
+        //TODO use prepared statements instead of concatanting strings for SQL QUERY!!!!!
+        //very important
+
+        ResultSet rs;
 
         String query = "insert into UU (login, name, address, phone) values ('" +
                 user.getLogin() + "', '" +
@@ -51,12 +54,15 @@ public class UU {
                 user.getAddress() + "', '" +
                 user.getNum() + "');";
 
-        System.out.println(query);
         try {
-            boolean result = stmt.execute(query);
-            //check result somehow before returning true. TODO.
+            int result = stmt.executeUpdate(query);
 
-            return result;
+            if(result > 0){
+                //insert worked
+                return true;
+            }else{
+                return false;
+            }
         } catch (Exception e){
             System.err.println("There was an error creating the user" + e);
             return false;
@@ -65,7 +71,7 @@ public class UU {
 
     /**
      *
-     * @param user
+     * @param login
      * @param stmt
      * @return whether or not a user exists with this login.
      */
@@ -81,10 +87,11 @@ public class UU {
 //            int columncount = metaData.get();
            if(!rs.next()){
                //no duplicate
-               rs.beforeFirst();
+               rs.close();
                return false;
            }else{
-               rs.beforeFirst();
+               //duplicate found
+               rs.close();
                return true;
            }
 

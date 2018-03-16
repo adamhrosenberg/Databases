@@ -10,7 +10,7 @@ import java.util.Scanner;
  * ENUM for reading in the resposnes from the user for the login/initial menu.
  */
 enum LOGIN_RESPONSES{
-    LOGIN(1), REGISTER(2);
+    LOGIN(1), REGISTER(2), EXIT(3);
 
     private int value;
     private LOGIN_RESPONSES(int value){
@@ -54,103 +54,157 @@ public class Main {
     	 System.out.println("Enter your choice:");
 	}
 
+    public static void displayLoggedInMenu(){
+        System.out.println("        USER LOGGED IN     ");
+        System.out.println("1. Reserve");
+        System.out.println("2. New UC");
+        System.out.println("3. New UC");
+        System.out.println("4. Exit");
+        System.out.println("Enter your choice:");
+    }
 	public static void promptLogin(){
 
     }
 	
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-		Connector con=null;
-		String choice;
-        String cname;
-        String dname;
-        String sql=null;
+	    //we only want ONE connector in this entire program.
+        Connector connector = null;
 
-        int c=0;
-        try
-		 {
-			//remember to replace the password
+        try{
+            connector = new Connector();
+            go(connector);
+        }catch(Exception e){
+            System.err.println("Connector error or sql error");
+        }finally
+        {
+            if (connector != null)
+            {
+                try
+                {
+                    connector.closeConnection();
+                    System.out.println ("Database connection terminated");
+                }
 
-			 	 con= new Connector();
-	             System.out.println ("Database connection established");
-	         
-	             BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-	             
-	             while(true)
-	             {
-	            	 displayInitialMenu();
-	            	 while ((choice = in.readLine()) == null && choice.length() == 0);
-	            	 try{
-	            		 c = Integer.parseInt(choice);
-	            	 }catch (Exception e)
-	            	 {
-	            		 
-	            		 continue;
-	            	 }
-//	            	 if (c<1 | c>3)
-//	            		 continue;
-	            	 if (c==LOGIN_RESPONSES.LOGIN.getValue())
-	            	 {
+                catch (Exception e) { /* ignore close errors */ }
+            }
+        }
 
-	            	 }
-	            	 else if (c==LOGIN_RESPONSES.REGISTER.getValue())
-	            	 {
-	            	     getUserInfo(con.stmt);
-	            	 }
-	            	 else
-	            	 {   
-	            		 System.out.println("EoM");
-	            		 con.stmt.close(); 
-	        
-	            		 break;
-	            	 }
-	             }
-		 }
-         catch (Exception e)
-         {
-        	 e.printStackTrace();
-        	 System.err.println ("Either connection error or query execution error!");
-         }
-         finally
-         {
-        	 if (con != null)
-        	 {
-        		 try
-        		 {
-        			 con.closeConnection();
-        			 System.out.println ("Database connection terminated");
-        		 }
-        	 
-        		 catch (Exception e) { /* ignore close errors */ }
-        	 }	 
-         }
+
 	}
 
-	private static void getUserInfo(Statement stmt){
-        //create new user to pass into user.createUser. get login, address, etc.
-        String login = promptUserForString("Enter username:");
+	public static void go(Connector con) throws IOException, SQLException{
+        // TODO Auto-generated method stub
+            String choice;
 
-        if(user.isLoginDuplicate(login, stmt)){
-            System.out.println("ERROR: Login must unique. Enter another username.");
-            getUserInfo(stmt);
+
+            int c=0;
+
+
+            System.out.println ("Database connection established");
+
+            BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+
+            while(true)
+            {
+                displayInitialMenu();
+                while ((choice = in.readLine()) == null && choice.length() == 0);
+                try{
+                    c = Integer.parseInt(choice);
+                }catch (Exception e)
+                {
+                    continue;
+                }
+
+                if (c==LOGIN_RESPONSES.LOGIN.getValue())
+                {
+                    login(con.stmt);
+
+                }
+                else if (c==LOGIN_RESPONSES.REGISTER.getValue())
+                {
+                    getUserInfo(con);
+                    break;
+                }
+                else if (c==LOGIN_RESPONSES.EXIT.getValue()){
+                    System.out.println("Closing connection");
+                    con.stmt.close();
+                    break;
+                }
+                else{
+                    System.err.println("Please enter a valid option");
+                }
+
+            }
+	}
+
+
+    private static void login(Statement stmt) throws IOException{
+        String choice;
+        int c=0;
+        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+        while(true){
+            displayLoggedInMenu();
+
+            while ((choice = in.readLine()) == null && choice.length() == 0);
+
+            try{
+                c = Integer.parseInt(choice);
+            }catch (Exception e)
+            {
+                continue;
+            }
+
+            if(c == MENU_RESPONSES.RESERVE.getValue()){
+
+                break;
+            }else if(c == MENU_RESPONSES.NEWUC.getValue()){
+
+                break;
+            }
         }
 
-        String first = promptUserForString("Enter first name:");
-        String last = promptUserForString("Enter last name:");
-        String address = promptUserForString("Enter address");
-        String num = promptUserForString("Enter phone number: i.e. 8015555555");
-        String pass = promptUserForString("Enter password");
+
+    }
+
+
+    /**
+     * Used for registering a new user.
+     * @param connector
+     */
+	private static void getUserInfo(Connector connector) throws IOException{
+        //create new user to pass into user.createUser. get login, address, etc.
+
+        String login = "";
+        boolean duplicate = true;
+        while(duplicate){
+            login = promptUserForString("Enter username:");
+            if(!user.isLoginDuplicate(login, connector.stmt)){
+                duplicate = false;
+            }else{
+                System.out.println("ERROR: Login must unique. Enter another username.");
+
+            }
+        }
+
+        String first = promptUserForString("Enter first name: ");
+        String last = promptUserForString("Enter last name: ");
+        String address = promptUserForString("Enter address: ");
+        String num = promptUserForString("Enter phone number: i.e. 8015555555 ");
+        String pass = promptUserForString("Enter password: ");
 
         UU user = new UU(login, first, last, address, num, pass);
-        boolean wasCreated = UU.createUser(user, stmt);
-        if(wasCreated){
-            System.out.println("Looking good");
+        boolean wasCreated = UU.createUser(user, connector.stmt);
 
+        if(wasCreated){
+            login(connector.stmt);
         }else{
             //this error wil have already be caught in UU.java. probably not needed.
-            System.err.println("Creation error");
+            System.err.println("ERROR while registering user. Please try again.");
+//            go(connector);
         }
     }
+
+
 
 
     /******
@@ -170,19 +224,3 @@ public class Main {
     }
 }
 
-
-//	            		 System.out.println("please enter your query below:");
-//	            		 while ((sql = in.readLine()) == null && sql.length() == 0)
-//	            			 System.out.println(sql);
-//	            		 ResultSet rs=con.stmt.executeQuery(sql);
-//	            		 ResultSetMetaData rsmd = rs.getMetaData();
-//	            		 int numCols = rsmd.getColumnCount();
-//	            		 while (rs.next())
-//	            		 {
-//	            			 //System.out.print("cname:");
-//	            			 for (int i=1; i<=numCols;i++)
-//	            				 System.out.print(rs.getString(i)+"  ");
-//	            			 System.out.println("");
-//	            		 }
-//	            		 System.out.println(" ");
-//	            		 rs.close();
