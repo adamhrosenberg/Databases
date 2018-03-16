@@ -212,21 +212,8 @@ public class Main {
 
             /**
 
-             System.out.println("1. Reserve");
-             System.out.println("2. New UC");
-             System.out.println("3. Record Ride");
-             System.out.println("4. Declare a UC as favorite");
-             System.out.println("5. Give feedback on UC");
-             System.out.println("6. Rate");
-             System.out.println("7. Trust another user");
-             System.out.println("8. Search for UC");
-             System.out.println("9. Get suggestions");
-             System.out.println("10. Two Degrees");
-             System.out.println("11. Get user stats");
-             System.out.println("12. Give user award");
-             System.out.println("13. Exit");
-
-             RESERVE(1), NEWUC(2), RECORD(3), FAV(4), FEEDBACK(5), RATE(6), TRUST(7), SEARCH(8), SUGGESTIONS(9),
+             RESERVE(1), NEWUC(2), RECORD(3), FAV(4), FEEDBACK(5), RATE(6),
+             TRUST(7), SEARCH(8), SUGGESTIONS(9),
              TWODEGREES(10), STATS(11), AWARD(12), EXIT(13);
 
              */
@@ -234,7 +221,7 @@ public class Main {
 
                 break;
             }else if(c == MENU_RESPONSES.NEWUC.getValue()){
-
+                newUC(con);
                 break;
             }else if(c == MENU_RESPONSES.RECORD.getValue()){
 
@@ -266,6 +253,19 @@ public class Main {
 
     }
 
+    /**
+     * Prompt user for new UC information. call new UC method in the UC class.
+     * @param con
+     */
+    private static void newUC(Connector con){
+
+        //TODO make sure the user is a driver.
+
+        String vin = "";
+        String login = user.getLogin();
+//        String
+    }
+
 
     /**
      * Used for registering a new user.
@@ -285,6 +285,21 @@ public class Main {
             }
         }
 
+        boolean invalidResponseToDriver = true;
+        boolean userIsDriver = false;
+
+        while(invalidResponseToDriver){
+            String driver = promptUserForString("Are you a driver? y/n");
+            if(driver.equals("y")){
+                userIsDriver = true;
+                invalidResponseToDriver = false;
+            }else if(driver.equals("n")){
+                // in the future if we add a isDriver field to the UU, set it to false here. same with above for true.
+                invalidResponseToDriver = false;
+            }else{
+                System.err.println("Invalid response please try again");
+            }
+        }
         String first = promptUserForString("Enter first name: ");
         String last = promptUserForString("Enter last name: ");
         String address = promptUserForString("Enter address: ");
@@ -293,6 +308,10 @@ public class Main {
 
         UU userToCreate = new UU(login, first, last, address, num, pass);
         boolean wasCreated = UU.createUser(userToCreate, connector.stmt);
+
+        if(userIsDriver){
+            UD.addToUD(connector, userToCreate);
+        }
 
         if(wasCreated){
             // set driver's user to the user that was created / registered
