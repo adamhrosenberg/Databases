@@ -26,7 +26,8 @@ enum LOGIN_RESPONSES{
  * ENUM for reading in the responses from the user for the logged in menu.
  */
 enum MENU_RESPONSES{
-    RESERVE(1), NEWUC(2);
+    RESERVE(1), NEWUC(2), RECORD(3), FAV(4), FEEDBACK(5), RATE(6), TRUST(7), SEARCH(8), SUGGESTIONS(9),
+    TWODEGREES(10), STATS(11), AWARD(12), EXIT(13);
 
     private int value;
     private MENU_RESPONSES(int value){
@@ -59,8 +60,17 @@ public class Main {
         System.out.println("        USER LOGGED IN     ");
         System.out.println("1. Reserve");
         System.out.println("2. New UC");
-        System.out.println("3. New UC");
-        System.out.println("4. Exit");
+        System.out.println("3. Record Ride");
+        System.out.println("4. Declare a UC as favorite");
+        System.out.println("5. Give feedback on UC");
+        System.out.println("6. Rate");
+        System.out.println("7. Trust another user");
+        System.out.println("8. Search for UC");
+        System.out.println("9. Get suggestions");
+        System.out.println("10. Two Degrees");
+        System.out.println("11. Get user stats");
+        System.out.println("12. Give user award");
+        System.out.println("13. Exit");
         System.out.println("Enter your choice:");
     }
 
@@ -80,7 +90,6 @@ public class Main {
                 try
                 {
                     connector.closeConnection();
-                    System.out.println ("Database connection terminated");
                 }
 
                 catch (Exception e) { /* ignore close errors */ }
@@ -116,7 +125,7 @@ public class Main {
                 //user logged in.
                 user = loggedUser;
                 wrongPass = false;
-                login(con.stmt);
+                login(con);
             }
         }
 
@@ -167,6 +176,7 @@ public class Main {
         System.out.println("Closing connection");
         try{
             con.stmt.close();
+            System.out.println ("Database connection terminated");
         }catch (Exception e){
             System.err.println("Error closing connection" + e);
         }
@@ -176,10 +186,10 @@ public class Main {
 
     /**
      * Once user is logged in theyre redirected to this menu.
-     * @param stmt
+     * @param con
      * @throws IOException
      */
-    private static void login(Statement stmt){
+    private static void login(Connector con){
         UU.printUser(user);
         String choice = "";
         int c=0;
@@ -200,11 +210,55 @@ public class Main {
                 continue;
             }
 
+            /**
+
+             System.out.println("1. Reserve");
+             System.out.println("2. New UC");
+             System.out.println("3. Record Ride");
+             System.out.println("4. Declare a UC as favorite");
+             System.out.println("5. Give feedback on UC");
+             System.out.println("6. Rate");
+             System.out.println("7. Trust another user");
+             System.out.println("8. Search for UC");
+             System.out.println("9. Get suggestions");
+             System.out.println("10. Two Degrees");
+             System.out.println("11. Get user stats");
+             System.out.println("12. Give user award");
+             System.out.println("13. Exit");
+
+             RESERVE(1), NEWUC(2), RECORD(3), FAV(4), FEEDBACK(5), RATE(6), TRUST(7), SEARCH(8), SUGGESTIONS(9),
+             TWODEGREES(10), STATS(11), AWARD(12), EXIT(13);
+
+             */
             if(c == MENU_RESPONSES.RESERVE.getValue()){
 
                 break;
             }else if(c == MENU_RESPONSES.NEWUC.getValue()){
 
+                break;
+            }else if(c == MENU_RESPONSES.RECORD.getValue()){
+
+                break;
+            }else if(c == MENU_RESPONSES.FAV.getValue()){
+
+            }else if(c == MENU_RESPONSES.FEEDBACK.getValue()){
+
+            }else if(c == MENU_RESPONSES.RATE.getValue()){
+
+            }else if(c == MENU_RESPONSES.TRUST.getValue()){
+
+            }else if(c == MENU_RESPONSES.SEARCH.getValue()){
+
+            }else if(c == MENU_RESPONSES.SUGGESTIONS.getValue()){
+
+            }else if(c == MENU_RESPONSES.TWODEGREES.getValue()){
+
+            }else if(c == MENU_RESPONSES.STATS.getValue()){
+
+            }else if(c == MENU_RESPONSES.AWARD.getValue()){
+
+            }else if(c == MENU_RESPONSES.EXIT.getValue()){
+                closeConnection(con);
                 break;
             }
         }
@@ -243,7 +297,7 @@ public class Main {
         if(wasCreated){
             // set driver's user to the user that was created / registered
             user = userToCreate;
-            login(connector.stmt);
+            login(connector);
         }else{
             //this error wil have already be caught in UU.java. probably not needed.
             System.err.println("ERROR while registering user. Please try again.");
