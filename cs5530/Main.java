@@ -99,7 +99,7 @@ public class Main {
 	    while(wrongUser){
             login = promptUserForString("Please enter login:");
             if(!UU.isLoginDuplicate(login, con.stmt)){
-                System.out.println("Invalid username please try again");
+                System.err.println("Invalid username please try again");
             }else{
                 wrongUser = false;
             }
@@ -227,8 +227,7 @@ public class Main {
             if(!user.isLoginDuplicate(login, connector.stmt)){
                 duplicate = false;
             }else{
-                System.out.println("ERROR: Login must unique. Enter another username.");
-
+                System.err.println("ERROR: Login must unique. Enter another username.");
             }
         }
 
