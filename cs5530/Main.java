@@ -49,7 +49,7 @@ public class Main {
 	private static UU user;
 	public static void displayInitialMenu()
 	{
-		 System.out.println("        Welcome to UUber System     ");
+		 System.out.println("        Welcome to U-Uber System     ");
     	 System.out.println("1. Login");
     	 System.out.println("2. Register");
     	 System.out.println("3. Exit");
@@ -57,7 +57,7 @@ public class Main {
 	}
 
     public static void displayLoggedInMenu(){
-        System.out.println("        USER LOGGED IN     ");
+        System.out.println("        WELCOME TO U-UBER     ");
         System.out.println("1. Reserve");
         System.out.println("2. Manage UCs");
         System.out.println("3. Record Ride");
@@ -257,17 +257,43 @@ public class Main {
      */
     private static void manageUC(Connector con){
 
+        // only drivers can have cars.
         if(!UD.isUserADriver(con, user)){
             System.err.println("You must be a driver to be able to manage cars");
             return;
         }
 
-        String vin = "";
-        String login = user.getLogin();
-//        String
+        boolean invalidResponse = true;
+        boolean userCreating = false;
+        while(invalidResponse){
+            String response = promptUserForString("Enter 1 to create a new UC or enter 2 to " +
+                    "edit a current UC");
+            if(response.equals("1")){
+                userCreating = true;
+                invalidResponse = false;
+            }else if(response.equals("2")){
+                userCreating = false; //therefore the user is editing.
+                invalidResponse = false;
+            }else{
+                System.err.println("Please enter a valid option, 1 or 2.");
+            }
+        }
+
+        if(userCreating){
+            createUC(con);
+        }else{
+            editUC(con);
+        }
     }
 
 
+    private static void createUC(Connector con){
+
+    }
+
+    private static void editUC(Connector con){
+
+    }
     /**
      * Used for registering a new user.
      * @param connector
