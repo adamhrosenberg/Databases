@@ -131,9 +131,7 @@ public class UU {
 
         try {
             rs = stmt.executeQuery(query);
-            int r = rs.getRow();
             ResultSetMetaData metaData = rs.getMetaData();
-//            int columncount = metaData.get();
            if(!rs.next()){
                //no duplicate
                rs.close();
