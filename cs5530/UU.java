@@ -5,6 +5,9 @@ import java.lang.*;
 import java.sql.*;
 import java.io.*;
 
+/**
+ * This class holds methods related to the UU table.
+ */
 
 public class UU {
 
