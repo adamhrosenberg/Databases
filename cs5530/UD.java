@@ -30,8 +30,24 @@ public class UD {
 
 
     public static boolean isUserADriver(Connector con, UU user){
-        // should be very similar to isLoginDuplicate in UU.java
 
+        ResultSet rs;
+        String query = "select UU_login from UD where UU_login = '" + user.getLogin() + "';";
+
+        try{
+            rs = con.stmt.executeQuery(query);
+
+            if(!rs.next()){
+                //not found.
+                rs.close();
+                return false;
+            }else{
+                rs.close();
+                return true;
+            }
+        }catch (Exception e) {
+            System.err.println("Error checking if user is in UD" + e);
+        }
         return false;
     }
 }

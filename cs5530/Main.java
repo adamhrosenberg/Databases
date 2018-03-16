@@ -59,7 +59,7 @@ public class Main {
     public static void displayLoggedInMenu(){
         System.out.println("        USER LOGGED IN     ");
         System.out.println("1. Reserve");
-        System.out.println("2. New UC");
+        System.out.println("2. Manage UCs");
         System.out.println("3. Record Ride");
         System.out.println("4. Declare a UC as favorite");
         System.out.println("5. Give feedback on UC");
@@ -219,10 +219,8 @@ public class Main {
              */
             if(c == MENU_RESPONSES.RESERVE.getValue()){
 
-                break;
             }else if(c == MENU_RESPONSES.NEWUC.getValue()){
-                newUC(con);
-                break;
+                manageUC(con);
             }else if(c == MENU_RESPONSES.RECORD.getValue()){
 
                 break;
@@ -257,9 +255,12 @@ public class Main {
      * Prompt user for new UC information. call new UC method in the UC class.
      * @param con
      */
-    private static void newUC(Connector con){
+    private static void manageUC(Connector con){
 
-        //TODO make sure the user is a driver.
+        if(!UD.isUserADriver(con, user)){
+            System.err.println("You must be a driver to be able to manage cars");
+            return;
+        }
 
         String vin = "";
         String login = user.getLogin();
