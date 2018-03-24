@@ -147,6 +147,25 @@ public class UU {
         }
     return false;
     }
+    
+    public static boolean addTrusted(Connector con, String user1, String user2, String trusted) {
+
+		String query = "insert into Trust values ('" + user1 + "', '" + user2 + "', '" + trusted + "');";
+
+		try {
+			int result = con.stmt.executeUpdate(query);
+
+			if (result > 0) {
+				// insert worked
+				return true;
+			} else {
+				return false;
+			}
+		} catch (Exception e) {
+			System.err.println("There was an error creating the user" + e);
+			return false;
+		}
+	}
 
 
     /**
