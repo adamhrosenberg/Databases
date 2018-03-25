@@ -40,7 +40,7 @@ public class Period {
 	public static String timeExist(String timeStart, String timeEnd, Statement stmt) {
 		ResultSet rs;
 		String pid = "";
-		String query = "select pid from Period where from = '" + timeStart + "' and to = '" + timeEnd + "';";
+		String query = "select p.pid from Period p where p.from = '" + timeStart + "' and p.to = '" + timeEnd + "';";
 
 		try {
 			rs = stmt.executeQuery(query);

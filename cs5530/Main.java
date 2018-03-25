@@ -4,6 +4,7 @@ import java.lang.*;
 import java.sql.*;
 import java.text.ParseException;
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 /**
@@ -27,7 +28,7 @@ enum LOGIN_RESPONSES {
  * ENUM for reading in the responses from the user for the logged in menu.
  */
 enum MENU_RESPONSES {
-	RESERVE(1), NEWUC(2), RECORD(3), FAV(4), FEEDBACK(5), RATE(6), TRUST(7), SEARCH(8), SUGGESTIONS(9), TWODEGREES(
+	RESERVE(1), NEWUC(2), RECORD(3), FAV(4), FEEDBACK(5), RATE(6), TRUST(7), SEARCH(8), USEFULFEEDBACKS(9), TWODEGREES(
 			10), STATS(11), AWARD(12), EXIT(13);
 
 	private int value;
@@ -68,7 +69,7 @@ public class Main {
 		System.out.println("6. Rate");
 		System.out.println("7. Trust another user");
 		System.out.println("8. Search for UC");
-		System.out.println("9. Get suggestions");
+		System.out.println("9. Get useful feedbacks");
 		System.out.println("10. Two Degrees");
 		System.out.println("11. Get user stats");
 		System.out.println("12. Give user award");
@@ -276,11 +277,11 @@ public class Main {
 			} else if (c == MENU_RESPONSES.RATE.getValue()) {
 				RateFeedback(con);
 			} else if (c == MENU_RESPONSES.TRUST.getValue()) {
-
+				isTrusted(con);
 			} else if (c == MENU_RESPONSES.SEARCH.getValue()) {
-
-			} else if (c == MENU_RESPONSES.SUGGESTIONS.getValue()) {
-
+				UCBrowsing(con); // not done yet
+			} else if (c == MENU_RESPONSES.USEFULFEEDBACKS.getValue()) {
+				usefulFeedbacks(con);
 			} else if (c == MENU_RESPONSES.TWODEGREES.getValue()) {
 
 			} else if (c == MENU_RESPONSES.STATS.getValue()) {
@@ -302,7 +303,91 @@ public class Main {
 	 */
 	private static void UCBrowsing(Connector con) {
 
-		String time = "";
+		boolean inputDone = false;
+		while (!inputDone) {
+			ArrayList<String> constraints = new ArrayList<String>();
+			boolean invalidConstraintResponse = true;
+			while (invalidConstraintResponse) {
+				String categoryResponse = promptUserForString(
+						"Select a search constraint: \n1. Car Category\n2. Address\n3. Model/Make");
+
+				if (categoryResponse.equals("1")) {
+
+					String cat = categorySelect();
+					constraints.add("category");
+					constraints.add(cat);
+
+				} else if (categoryResponse.equals("2")) {
+
+					String address = promptUserForString("Search by: \n1. City\n2. State");
+					if (address.equals("1")) {
+						constraints.add("city");
+						String city = promptUserForString("Enter city name:");
+						constraints.add(city);
+					} else if (address.equals("2")) {
+						constraints.add("state");
+						String state = promptUserForString("Enter state abbreviation:");
+						constraints.add(state);
+					} else {
+						System.err.println("Invalid response please try again");
+					}
+
+				} else if (categoryResponse.equals("3")) {
+
+					String address = promptUserForString("Search by: \n1. Make\n2. Model");
+					if (address.equals("1")) {
+						constraints.add("make");
+						String make = promptUserForString("Enter Make company:");
+						constraints.add(make);
+					} else if (address.equals("2")) {
+						constraints.add("model");
+						String model = promptUserForString("Enter Model of car:");
+						constraints.add(model);
+					} else {
+						System.err.println("Invalid response please try again");
+					}
+
+				} else {
+					System.err.println("");
+				}
+
+				// ask if more constraint wanted
+				boolean validResponse = false;
+				while (!validResponse) {
+					String response = promptUserForString("Add more constraints? (y/n):");
+					if (response.equals("n")) {
+						validResponse = true;
+						inputDone = true;
+					} else if (response.equals("y")) {
+						validResponse = true;
+					} else {
+						System.err.println("Invalid response please try again");
+					}
+				}
+			}
+
+			// asks for sorting method
+			String sort = "";
+			boolean validResponse = false;
+			while (!validResponse) {
+				String address = promptUserForString(
+						"Sort by: \n1. Average score of all feedbacks\n2. Average score of trusted user feedbacks");
+				if (address.equals("1")) {
+					sort = "1";
+					validResponse = true;
+				} else if (address.equals("2")) {
+					sort = "2";
+					validResponse = true;
+				} else {
+					System.err.println("Invalid response please try again");
+				}
+			}
+
+			// TODO: search
+			// still working on how I should add all the constraints together into searching,
+			// let me know if you have any suggestions
+
+		}
 
 	}
 
@@ -315,8 +400,10 @@ public class Main {
 
 		String vin = "";
 		String pid = "";
-		String time = "";
 		String cost = "";
+		String from = "";
+		String to = "";
+		String date = "";
 
 		boolean correctVin = false;
 		while (!correctVin) {
@@ -327,21 +414,35 @@ public class Main {
 				correctVin = true;
 			}
 		}
+
+		// get date from user
+		// TODO: need to check date formating
+		date = promptUserForString("Enter the date that you want to record the ride (with the form YYYY/MM/DD) :");
+
+		// get from, to time and check if the driver is available using Vin
 		boolean isAvailable = false;
 		while (!isAvailable) {
-			time = promptUserForString("Enter time that you want to reserve in the form of HH:MM");
-			if (checkTimeFormat(time)) {
-				time = time + ":00";
-				pid = UD.isDriverAvailable(con, vin, time);
-				System.out.println("pid = " + pid);
-				if (pid == null) {
-					System.err.println(
-							"The driver of this car is not available within this time. Please enter a new one.");
+			boolean correctTime = false;
+			while (!correctTime) {
+				System.out.println("Enter time that you want to record the ride with, (0-24)");
+				from = promptUserForString("From: ");
+				to = promptUserForString("To: ");
+				if (Integer.parseInt(from) > Integer.parseInt(to)) {
+					System.err.println("From time needs to be less than To time. Please enter a new one.");
+				} else if (Integer.parseInt(from) > 24 || Integer.parseInt(from) < 0 || Integer.parseInt(to) > 24
+						|| Integer.parseInt(to) < 0) {
+					System.err.println("Time inteval needs to be within 0-24. Please enter a new one.");
 				} else {
-					isAvailable = true;
+					correctTime = true;
 				}
+			}
+			pid = Period.timeExist(from, to, con.stmt);
+			if (pid == null || pid.equals("")) {
+				pid = Period.getNextPid(con);
+				Period time = new Period(pid, from, to);
+				Period.createNewPeriod(time, con.stmt);
 			} else {
-				System.err.println("Please enter the time in this format \"HH:MM\" \n");
+				isAvailable = true;
 			}
 		}
 
@@ -360,12 +461,15 @@ public class Main {
 			System.out.println("User: " + user.getLogin());
 			System.out.println("VIN: " + vin);
 			System.out.println("Cost: " + cost);
-			System.out.println("Time: " + time);
+			System.out.println("Date: " + date);
+			System.out.println("From: " + from);
+			System.out.println("To: " + to);
 			String toReserve = promptUserForString("Are the information correct? y/n");
 			if (toReserve.equals("y")) {
-				if (UC.Reserve(con, vin, pid, cost, time, user.getLogin())) {
+				if (UC.Reserve(con, vin, pid, cost, date, user.getLogin())) {
 					isReserved = true;
 					System.out.println("RESERVED");
+					suggestions(con, vin);
 				}
 			} else if (toReserve.equals("n")) {
 				Reserve(con);
@@ -375,6 +479,28 @@ public class Main {
 			}
 		}
 
+	}
+
+	private static void suggestions(Connector con, String vin) {
+
+		// get and display suggestions
+		ResultSet results = UC.getSuggestions(con, vin);
+
+		int i = 1;
+		try {
+			if (results == null) {
+				System.err.println("No suggestions.");
+			}
+			while (results.next()) {
+
+				System.out.println(i + ". Car ID: " + results.getString("vin") + " Driver ID: "
+						+ results.getString("login") + " Category: " + results.getString("category") + 
+						" Comfort: " + results.getString("comfort"));
+				i++;
+			}
+		} catch (SQLException e) {
+			System.err.println("Error printing suggestions" + e);
+		}
 	}
 
 	/**
@@ -395,7 +521,7 @@ public class Main {
 		// get Vin for car and check if it exists
 		boolean correctVin = false;
 		while (!correctVin) {
-			vin = promptUserForString("Enter vin of UC that you want to reserve");
+			vin = promptUserForString("Enter vin of UC that you want to record ride with");
 			if (!UC.doesThisIdExist(con, vin, "vin", "UC")) {
 				System.err.println("There are no car with this Vin. Please enter a new one.");
 			} else {
@@ -404,17 +530,29 @@ public class Main {
 		}
 
 		// get date from user
+		// TODO: need to check date formating
 		date = promptUserForString("Enter the date that you want to record the ride (with the form YYYY/MM/DD) :");
 
 		// get from, to time and check if the driver is available using Vin
 		boolean isAvailable = false;
 		while (!isAvailable) {
-			System.out.println("Enter time that you want to record the ride with,");
-			from = promptUserForString("From: ");
-			to = promptUserForString("To: ");
+			boolean correctTime = false;
+			while (!correctTime) {
+				System.out.println("Enter time that you want to record the ride with, (0-24)");
+				from = promptUserForString("From: ");
+				to = promptUserForString("To: ");
+				if (Integer.parseInt(from) > Integer.parseInt(to)) {
+					System.err.println("From time needs to be less than To time. Please enter a new one.");
+				} else if (Integer.parseInt(from) > 24 || Integer.parseInt(from) < 0 || Integer.parseInt(to) > 24
+						|| Integer.parseInt(to) < 0) {
+					System.err.println("Time inteval needs to be within 0-24. Please enter a new one.");
+				} else {
+					correctTime = true;
+				}
+			}
 			pid = UD.isDriverAvailableRide(con, vin, from, to);
 			System.out.println("pid = " + pid);
-			if (pid == null) {
+			if (pid == null || pid.equals("")) {
 				System.err.println("The driver of this car is not available within this time. Please enter a new one.");
 			} else {
 				isAvailable = true;
@@ -434,7 +572,6 @@ public class Main {
 
 		// generate new rid
 		rid = UC.getNextId(con, "rid", "Ride");
-		;
 
 		boolean isReserved = false;
 		while (!isReserved) {
@@ -475,7 +612,7 @@ public class Main {
 			// get Vin for car and check if it exists
 			boolean correctVin = false;
 			while (!correctVin) {
-				vin = promptUserForString("Enter vin of UC that you want to reserve");
+				vin = promptUserForString("Enter vin of car you want to declare as favorite");
 				if (!UC.doesThisIdExist(con, vin, "vin", "UC")) {
 					System.err.println("There are no car with this Vin. Please enter a new one.");
 				} else {
@@ -508,7 +645,7 @@ public class Main {
 			// get Vin for car and check if it exists
 			boolean correctVin = false;
 			while (!correctVin) {
-				vin = promptUserForString("Enter vin of UC that you want to reserve");
+				vin = promptUserForString("Enter vin of car you want to give feedback to");
 				if (!UC.doesThisIdExist(con, vin, "vin", "UC")) {
 					System.err.println("There are no car with this Vin. Please enter a new one.");
 				} else {
@@ -534,15 +671,16 @@ public class Main {
 
 			date = promptUserForString("Enter today's date (with the form YYYY/MM/DD) :");
 			text = promptUserForString("Enter the additional comments (Optional):");
-
-			if (UC.addFeedback(con, vin, user.getLogin(), score, text, date)) {
+			String fid = UC.getNextId(con, "fid", "Feedback");
+			if (UC.addFeedback(con, fid, vin, user.getLogin(), score, text, date)) {
 				FeedbackAdded = true;
+				System.out.println("Feedback added! ID = " + fid);
 			}
 		}
 	}
 
 	/**
-	 * 
+	 * Rate feedbacks
 	 * @param con
 	 */
 	private static void RateFeedback(Connector con) {
@@ -581,6 +719,10 @@ public class Main {
 		}
 	}
 
+	/**
+	 *  rate if the user is trusted or not
+	 * @param con
+	 */
 	private static void isTrusted(Connector con) {
 
 		boolean TrustAdded = false;
@@ -601,8 +743,8 @@ public class Main {
 			String trusted = "";
 			boolean validResponse = false;
 			while (!validResponse) {
-				trusted = promptUserForString("Is this user trusted? (Enter ture/false):");
-				if (!trusted.equals("true") || !trusted.equals("false")) {
+				trusted = promptUserForString("Is this user trusted? (Enter true/false):");
+				if (!trusted.equals("true") && !trusted.equals("false")) {
 					System.err.println("Invalid response. Please enter a new one.");
 				} else {
 					validResponse = true;
@@ -616,6 +758,57 @@ public class Main {
 	}
 
 	/**
+	 * gets top n numbers of most useful feedback from certain driver with
+	 * driver login id
+	 * 
+	 * @param con
+	 */
+	private static void usefulFeedbacks(Connector con) {
+
+		String login = "";
+		boolean validResponse = false;
+		while (!validResponse) {
+			login = promptUserForString("Enter id(login) for the Driver:");
+			if (!UD.isUserADriver(con, login)) {
+				System.err.println("No driver with this id. Please enter a new one.");
+			} else {
+				validResponse = true;
+			}
+		}
+
+		String numOfFeedbacks = "";
+		// get User for car and check if it exists
+		boolean validInput = false;
+		while (!validInput) {
+			numOfFeedbacks = promptUserForString("Enter number of feedbacks wanted:");
+			if (numOfFeedbacks.matches("[0-9]+") && numOfFeedbacks.length() >= 1) {
+				validInput = true;
+			} else {
+				System.err.println("There are user with this username. Please enter a new one.");
+			}
+		}
+
+		// get and display feedback
+		ResultSet results = UC.getUsefulFeedbacks(con, login, numOfFeedbacks);
+
+		int i = 1;
+		try {
+			if (results == null) {
+				System.err.println("No feedbacks for this driver.");
+			}
+			while (results.next()) {
+				System.out.println(i + ". ID: " + results.getString("fid") + " Score: " + results.getString("score")
+						+ " Comments: " + results.getString("text") + " Date: " + results.getString("date")
+						+ " Useful rating (0-2): " + results.getString("avgRates"));
+				i++;
+			}
+		} catch (SQLException e) {
+			System.err.println("Error printing useful feedbacks" + e);
+		}
+
+	}
+
+	/**
 	 * Prompt user for new UC information. call new UC method in the UC class.
 	 * 
 	 * @param con
@@ -623,7 +816,7 @@ public class Main {
 	private static void manageUC(Connector con) {
 
 		// only drivers can have cars.
-		if (!UD.isUserADriver(con, user)) {
+		if (!UD.isUserADriver(con, user.getLogin())) {
 			System.err.println("You must be a driver to be able to manage cars");
 			return;
 		}
@@ -711,43 +904,6 @@ public class Main {
 					i++;
 				}
 
-				// String edit = "";
-				// boolean invalidResponse = true;
-				// while (invalidResponse) {
-				// String categoryResponse = promptUserForString("Select a
-				// section to edit: \n1. Category\n2. Comfort\n3. Make\n4.
-				// Model");
-				//
-				// if (categoryResponse.equals("1")) {
-				// edit = categorySelect();
-				// invalidResponse = false;
-				// } else if (categoryResponse.equals("2")) {
-				// edit = comfortSelect();
-				// invalidResponse = false;
-				// } else if (categoryResponse.equals("3")) {
-				// boolean CtypeInfo = true;
-				// while (CtypeInfo) {
-				// edit = promptUserForString("Please enter the make year for
-				// your car");
-				// if (edit.matches("[0-9]+") && edit.length() == 4) {
-				// CtypeInfo = false;
-				// } else {
-				// System.out.println("Please enter the make year in xxxx
-				// format. Please enter a new one.");
-				// }
-				// }
-				//
-				// invalidResponse = false;
-				// } else if (categoryResponse.equals("4")) {
-				// edit = promptUserForString("Please enter the model for your
-				// car");
-				// invalidResponse = false;
-				// } else {
-				// System.err.println("Please enter a valid option for the
-				// category of car. 1, 2, 3 or 4.");
-				// }
-				// }
-
 				boolean doneEdit = false;
 				while (!doneEdit) {
 					System.out.println("Please enter the following information.");
@@ -776,8 +932,7 @@ public class Main {
 				}
 
 			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				System.err.println("Error while editing UC");
 			}
 		}
 
@@ -821,11 +976,14 @@ public class Main {
 		}
 		String first = promptUserForString("Enter first name: ");
 		String last = promptUserForString("Enter last name: ");
-		String address = promptUserForString("Enter address: ");
+		System.out.println("Enter address:");
+		String address = promptUserForString("Enter street: ");
+		String city = promptUserForString("Enter city: ");
+		String state = promptUserForString("Enter state abbreviation: ");
 		String num = promptUserForString("Enter phone number: i.e. 8015555555 ");
 		String pass = promptUserForString("Enter password: ");
 
-		UU userToCreate = new UU(login, first, last, address, num, pass);
+		UU userToCreate = new UU(login, first, last, address, num, pass, city, state);
 		boolean wasCreated = UU.createUser(userToCreate, connector.stmt);
 
 		if (userIsDriver) {
@@ -840,12 +998,13 @@ public class Main {
 
 				// check for duplicate time here
 				String pid = Period.timeExist(from, to, connector.stmt);
-				if (pid.equals("")) {
+				if (pid.equals("") || pid == null) {
 					pid = Period.getNextPid(connector);
 					if (pid.equals("")) {
 						pid = "0";
 					}
 					Period timePeriod = new Period(pid, from, to);
+					Period.createNewPeriod(timePeriod, connector.stmt);
 					UD.addAvailableTime(connector, userToCreate.getLogin(), timePeriod.getPid());
 				} else {
 					UD.addAvailableTime(connector, userToCreate.getLogin(), pid);

@@ -321,6 +321,30 @@ public class UC {
 		}
 	}
 
+	public static ResultSet getSuggestions(Connector con, String vin) {
+		ResultSet rs;
+
+		String query = "select * from UC car where car.vin in (select r1.vin from Reserve r1, Reserve r2 "
+				+ "where r1.login = r2.login and r1.vin = '" + vin + "' and r2.vin != '" + vin + "') "
+				+ "and car.vin != '" + vin + "' group by car.vin ORDER BY count(*) desc;";
+
+		try {
+			rs = con.stmt.executeQuery(query);
+			// ResultSetMetaData metaData = rs.getMetaData();
+			if (!rs.next()) {
+				// not found.
+				rs.close();
+				return null;
+			} else {
+				rs.close();
+				return rs;
+			}
+		} catch (Exception e) {
+			System.err.println("Error getting useful feedbacks" + e);
+		}
+		return null;
+	}
+
 	/**
 	 * record a ride to a UC
 	 * 
@@ -335,8 +359,8 @@ public class UC {
 	public static boolean recordRides(Connector con, String rid, String vin, String cost, String date, String login,
 			String from, String to) {
 
-		String query = "insert into Reserve values ('" + rid + "', '" + vin + "', '" + login + "', '" + cost + "', '"
-				+ date + "', '" + from + "', '" + to + "');";
+		String query = "insert into Ride values ('" + rid + "', '" + vin + "', '" + cost + "', '" + date + "', '"
+				+ login + "', '" + from + "', '" + to + "');";
 
 		try {
 			int result = con.stmt.executeUpdate(query);
@@ -360,7 +384,7 @@ public class UC {
 	 */
 	public static boolean addFav(Connector con, String login, String vin, String date) {
 
-		String query = "insert into Favorites values ('" + login + "', '" + vin + "', '" + date + "');";
+		String query = "insert into Favorites values ('" + vin + "', '" + login + "', '" + date + "');";
 
 		try {
 			int result = con.stmt.executeUpdate(query);
@@ -389,9 +413,9 @@ public class UC {
 	 * @param date
 	 * @return
 	 */
-	public static boolean addFeedback(Connector con, String vin, String login, String score, String text, String date) {
+	public static boolean addFeedback(Connector con, String fid, String vin, String login, String score, String text,
+			String date) {
 
-		String fid = getNextId(con, "fid", "Feedback");
 		String query = "insert into Feedback values ('" + fid + "', '" + vin + "', '" + login + "', '" + score + "', '"
 				+ text + "', '" + date + "');";
 
@@ -409,7 +433,7 @@ public class UC {
 			return false;
 		}
 	}
-	
+
 	/**
 	 * 
 	 * @param con
@@ -435,6 +459,32 @@ public class UC {
 			System.err.println("There was an error creating the user" + e);
 			return false;
 		}
+	}
+
+	public static ResultSet getUsefulFeedbacks(Connector con, String login, String count) {
+
+		ResultSet rs;
+
+		String query = "select f.fid, f.vin, f.login, f.score, f.text, f.date, AVG (r.rating) "
+				+ "as avgRates from Feedback f, Rates r where f.vin in "
+				+ "(select vin from UC c, UD d where c.login=d.UU_login and d.UU_login = '" + login + "') "
+				+ "and f.fid=r.fid group by f.fid ORDER BY avgRates DESC limit " + count + ";";
+
+		try {
+			rs = con.stmt.executeQuery(query);
+			// ResultSetMetaData metaData = rs.getMetaData();
+			if (!rs.next()) {
+				// not found.
+				rs.close();
+				return null;
+			} else {
+				rs.close();
+				return rs;
+			}
+		} catch (Exception e) {
+			System.err.println("Error getting useful feedbacks" + e);
+		}
+		return null;
 	}
 
 	/**
@@ -563,4 +613,5 @@ public class UC {
 		System.out.println("***CAR INFORMATION***\nvin: " + car.getVin() + "\ncategory: " + car.getCategory()
 				+ "\nowner: " + car.getLogin());
 	}
+
 }

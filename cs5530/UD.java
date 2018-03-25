@@ -29,10 +29,10 @@ public class UD {
 		return true;
 	}
 
-	public static boolean isUserADriver(Connector con, UU user) {
+	public static boolean isUserADriver(Connector con, String login) {
 
 		ResultSet rs;
-		String query = "select UU_login from UD where UU_login = '" + user.getLogin() + "';";
+		String query = "select UU_login from UD where UU_login = '" + login + "';";
 
 		try {
 			rs = con.stmt.executeQuery(query);
@@ -54,7 +54,7 @@ public class UD {
 	public static boolean addAvailableTime(Connector con, String login, String pid) {
 
 
-		String query = "insert into Available values ('" + login + "', '" + pid + "');";
+		String query = "insert into Available values ('" + pid + "', '" + login + "');";
 		try {
 			int result = con.stmt.executeUpdate(query);
 

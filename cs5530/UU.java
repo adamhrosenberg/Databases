@@ -20,6 +20,8 @@ public class UU {
     private String address;
     private String num;
     private String pass;
+    private String city;
+    private String state;
 
     /**
      *
@@ -30,13 +32,15 @@ public class UU {
      * @param num
      * @param pass
      */
-    public UU(String login, String first, String last, String address, String num, String pass) {
+    public UU(String login, String first, String last, String address, String num, String pass, String city, String state) {
         this.login = login;
         this.first = first;
         this.last = last;
         this.address = address;
         this.pass = pass;
         this.num = num;
+        this.city = city;
+        this.state = state;
     }
 
 
@@ -51,13 +55,15 @@ public class UU {
 
         ResultSet rs;
 
-        String query = "insert into UU (login, firstName, lastName, address, phone, password) values ('" +
+        String query = "insert into UU (login, firstName, lastName, address, phone, password, city, state) values ('" +
                 user.getLogin() + "', '" +
                 user.getFirst() + "', '" +
                 user.getLast() + "', '" +
                 user.getAddress() + "', '" +
                 user.getNum() + "', '" +
-                user.getPassword() + "');";
+                user.getPassword() + "', '" +
+                user.getCity() + "', '" +
+                user.getState() +"');";
 
         try {
             int result = stmt.executeUpdate(query);
@@ -108,9 +114,11 @@ public class UU {
             String first = rs.getString("firstName");
             String last = rs.getString("lastName");
             String address = rs.getString("address");
+            String city = rs.getString("city");
+            String state = rs.getString("state");
             String num = rs.getString("phone");
             String pass = rs.getString("password");
-            user = new UU(login, first, last, address, num, pass);
+            user = new UU(login, first, last, address, num, pass, city, state);
         }catch(Exception e){
             System.err.println("Error converting RS to User " + e);
         }
@@ -198,6 +206,14 @@ public class UU {
 
     public String getNum() {
         return this.num;
+    }
+    
+    public String getCity() {
+        return this.city;
+    }
+    
+    public String getState() {
+        return this.state;
     }
 
     public static void printUser(UU user){
