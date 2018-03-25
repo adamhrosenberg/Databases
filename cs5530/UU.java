@@ -177,6 +177,93 @@ public class UU {
 
 
     /**
+     *
+     * Award methods
+     *
+     */
+	public static boolean awardUser(Connector con, String login){
+
+        if(!isDuplicateAward(con, login)){
+            String query = "insert into Awards values ('" + login + "');";
+
+            try{
+                int result = con.stmt.executeUpdate(query);
+
+                if(result > 0){
+                    // insert worked
+                    return true;
+                }else{
+                    return false;
+                }
+            }catch (Exception e){
+                System.err.println("There was an error addaing award");
+            }
+
+        }
+        return true;
+    }
+
+    private static boolean isDuplicateAward(Connector con, String login){
+
+        ResultSet rs;
+        String query = "select * from Awards where user_login = '" + login + "';";
+
+        try {
+            rs = con.stmt.executeQuery(query);
+            ResultSetMetaData metaData = rs.getMetaData();
+            if(!rs.next()){
+                //no duplicate
+                rs.close();
+                return false;
+            }else{
+                //duplicate found
+                rs.close();
+                return true;
+            }
+
+        } catch(Exception e){
+            System.err.println("Error while checking for duplicate award. " + e);
+        }
+        return false;
+    }
+
+
+    /**
+     *
+     * Statistic Function
+     *
+     */
+
+
+    /**
+     * most popular UCs (in terms of total rides) for each category.
+     * @param con
+     * @param m
+     */
+    public static void mMostPopularUC(Connector con, int m){
+
+    }
+
+    /**
+     * most expensive UC's (defined by average cost of all rides on a UC) for each category
+     * @param con
+     * @param m
+     */
+    public static void mMostExpevsiveUC(Connector con, int m){
+
+    }
+
+
+    /**
+     * most highly rated UDs (defined by average scores from all feedbacks a UD has received for all of his UCs)
+     * @param con
+     * @param m
+     */
+    public static void mHighestRatedUD(Connector con, int m){
+
+    }
+
+    /**
      * Getter functions for private variables
      */
 

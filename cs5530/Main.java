@@ -11,7 +11,7 @@ import java.util.Scanner;
  * ENUM for reading in the resposnes from the user for the login/initial menu.
  */
 enum LOGIN_RESPONSES {
-	LOGIN(1), REGISTER(2), EXIT(3);
+	LOGIN(1), REGISTER(2), ADMIN_LOGIN(3), EXIT(4);
 
 	private int value;
 
@@ -53,9 +53,10 @@ public class Main {
 
 	public static void displayInitialMenu() {
 		System.out.println("        Welcome to U-Uber System     ");
-		System.out.println("1. Login");
+		System.out.println("1. UU Login");
 		System.out.println("2. Register");
-		System.out.println("3. Exit");
+		System.out.println("3. Admin Login");
+		System.out.println("4. Exit ");
 		System.out.println("Enter your choice:");
 	}
 
@@ -75,6 +76,12 @@ public class Main {
 		System.out.println("12. Give user award");
 		System.out.println("13. Exit");
 		System.out.println("Enter your choice:");
+	}
+
+	public static void displayAdminMeun(){
+		System.out.println("	Welcome Admin	");
+		System.out.println("1. Award user ");
+		System.out.println("Enter your choice");
 	}
 
 	public static String categorySelect() {
@@ -209,7 +216,11 @@ public class Main {
 			} else if (c == LOGIN_RESPONSES.REGISTER.getValue()) {
 				getUserInfo(con);
 				break;
-			} else if (c == LOGIN_RESPONSES.EXIT.getValue()) {
+			}
+			else if(c == LOGIN_RESPONSES.ADMIN_LOGIN.getValue()){
+
+				break;
+			}else if (c == LOGIN_RESPONSES.EXIT.getValue()) {
 				closeConnection(con);
 				break;
 			} else {
@@ -287,7 +298,7 @@ public class Main {
 			} else if (c == MENU_RESPONSES.STATS.getValue()) {
 
 			} else if (c == MENU_RESPONSES.AWARD.getValue()) {
-
+				System.out.println("REMOVE THIS");
 			} else if (c == MENU_RESPONSES.EXIT.getValue()) {
 				closeConnection(con);
 				break;
