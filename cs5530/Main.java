@@ -295,7 +295,7 @@ public class Main {
 			} else if (c == MENU_RESPONSES.TWODEGREES.getValue()) {
 				degreesOfSeperation(con);
 			} else if (c == MENU_RESPONSES.STATS.getValue()) {
-
+                getStats(con);
 			} else if (c == MENU_RESPONSES.AWARD.getValue()) {
 				System.out.println("REMOVE THIS");
 			} else if (c == MENU_RESPONSES.EXIT.getValue()) {
@@ -454,6 +454,13 @@ public class Main {
 		}
 
 	}
+
+
+	private static void getStats(Connector con){
+	    int m = Integer.parseInt(promptUserForString("Enter number of users you'd like to see stats for (m)"));
+
+	    UU.statsDriver(con, m);
+    }
 
 	/**
 	 * Reserve a UC and display the information

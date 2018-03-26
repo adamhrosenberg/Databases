@@ -335,6 +335,16 @@ public class UU {
         return false;
     }
 
+    public static void statsDriver(Connector con, int m){
+        ArrayList<String> categories = new ArrayList<>();
+        categories.add("SUV");
+        categories.add("Sedan");
+        categories.add("Truck");
+        categories.add("Tesla");
+        mMostExpevsiveUC(con, m, categories);
+        mMostPopularUC(con, m, categories);
+        mHighestRatedUD(con, m, categories);
+    }
 
     /**
      *
@@ -348,16 +358,29 @@ public class UU {
      * @param con
      * @param m
      */
-    public static void mMostPopularUC(Connector con, int m){
+    public static void mMostPopularUC(Connector con, int m, ArrayList<String> categories){
+        ArrayList<String> mMostPopularUCs = new ArrayList<>();
+        System.out.println(m + " most popular UCs by category:");
+        ResultSet rs = null;
+        String query = "select Ride.";
 
+        try{
+
+        }catch(Exception e){
+            System.err.println("Error when finding m most popular UCs: \n" + e);
+        }
     }
+
+
 
     /**
      * most expensive UC's (defined by average cost of all rides on a UC) for each category
      * @param con
      * @param m
      */
-    public static void mMostExpevsiveUC(Connector con, int m){
+    public static void mMostExpevsiveUC(Connector con, int m, ArrayList<String> categories){
+        ArrayList<String> mMostExpensiveUCs = new ArrayList<>();
+        System.out.println(m + " most expensive UCs by category:");
 
     }
 
@@ -367,7 +390,7 @@ public class UU {
      * @param con
      * @param m
      */
-    public static void mHighestRatedUD(Connector con, int m){
+    public static void mHighestRatedUD(Connector con, int m, ArrayList<String> c){
 
     }
 
