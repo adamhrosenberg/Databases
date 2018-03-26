@@ -499,22 +499,20 @@ public class Main {
 			}
 		}
 
-		// TODO: search
-		// still working on how I should add all the constraints together into
-		// searching,
-		// let me know if you have any suggestions
 
+		// search with constraints and display the result
 		ArrayList<String> results = UC.UCBrosing(con, category, address, make, sort);
 		if (results.size() == 0) {
 			System.out.println("There are no car available with these constraints");
 		} else {
 
-			for (int i = 0; i < results.size(); i += 3) {
+			for (int i = 0; i < results.size(); i += 5) {
 				ArrayList<String> carRs = UC.getCtypes(con, results.get(i));
 
-				UC car = new UC(results.get(i), results.get(i + 1), user.getLogin(), results.get(i + 2), carRs.get(0),
+				UC car = new UC(results.get(i), results.get(i + 2), results.get(i + 1), results.get(i + 3), carRs.get(0),
 						carRs.get(1), carRs.get(2));
 				UC.printUC(car);
+				System.out.println("Score: "+results.get(i + 4));
 			}
 		}
 
@@ -556,7 +554,6 @@ public class Main {
 		numOfPpl = promptUserForString("Enter the number of person will be in the ride:");
 
 		// get date from user
-		// TODO: need to check date formating
 		date = promptUserForString("Enter the date that you want to record the ride (with the form YYYY/MM/DD) :");
 
 		// get from, to time and check if the driver is available using Vin
@@ -631,10 +628,10 @@ public class Main {
 			System.out.println("There are no suggested car available with these constraints");
 		} else {
 			System.out.println("Suggested Cars:");
-			for (int i = 0; i < results.size(); i += 3) {
+			for (int i = 0; i < results.size(); i += 4) {
 				ArrayList<String> carRs = UC.getCtypes(con, results.get(i));
 
-				UC car = new UC(results.get(i), results.get(i + 1), user.getLogin(), results.get(i + 2), carRs.get(0),
+				UC car = new UC(results.get(i), results.get(i + 2), results.get(i + 1), results.get(i + 3), carRs.get(0),
 						carRs.get(1), carRs.get(2));
 				UC.printUC(car);
 			}
@@ -673,7 +670,6 @@ public class Main {
 		numOfPpl = promptUserForString("Enter the number of person will be in the ride:");
 
 		// get date from user
-		// TODO: need to check date formating
 		date = promptUserForString("Enter the date that you want to record the ride (with the form YYYY/MM/DD) :");
 
 		// get from, to time and check if the driver is available using Vin

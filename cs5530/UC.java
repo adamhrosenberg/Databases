@@ -338,6 +338,12 @@ public class UC {
 		}
 	}
 
+	/**
+	 * Get car information for suggested cars
+	 * @param con
+	 * @param vin
+	 * @return
+	 */
 	public static ArrayList<String> getSuggestions(Connector con, String vin) {
 		ResultSet results;
 		ArrayList<String> result = new ArrayList<String>();
@@ -396,6 +402,16 @@ public class UC {
 		}
 	}
 
+	
+	/**
+	 * Search for UC with constraints
+	 * @param con
+	 * @param category
+	 * @param address
+	 * @param make
+	 * @param sort
+	 * @return
+	 */
 	public static ArrayList<String> UCBrosing(Connector con, ArrayList<String> category, ArrayList<String> address,
 			ArrayList<String> make, String sort) {
 		ResultSet results;
@@ -756,7 +772,7 @@ public class UC {
 	public static void printUC(UC car) {
 		System.out.println("***CAR INFORMATION***\nvin: " + car.getVin() + "\ncategory: " + car.getCategory()
 				+ "\nowner: " + car.getLogin() + "\nComfort: " + car.getComfort() + "\nYear: " + car.getYear()
-				+ "\nMake: " + car.getMake() + "\nModel: " + car.getModel() + "\n");
+				+ "\nMake: " + car.getMake() + "\nModel: " + car.getModel());
 	}
 
 }
