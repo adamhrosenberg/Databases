@@ -887,7 +887,7 @@ public class Main {
 			// get User for car and check if it exists
 			boolean correctUser = false;
 			while (!correctUser) {
-				ratedUser = promptUserForString("Enter username of User being rated:");
+				ratedUser = promptUserForString("Enter username of User trusting/not trusting:");
 				if (!UU.isLoginDuplicate(ratedUser, con.stmt)) {
 					System.err.println("There are user with this username. Please enter a new one.");
 				} else {
@@ -898,8 +898,8 @@ public class Main {
 			String trusted = "";
 			boolean validResponse = false;
 			while (!validResponse) {
-				trusted = promptUserForString("Is this user trusted? (Enter true/false):");
-				if (!trusted.equals("true") && !trusted.equals("false")) {
+				trusted = promptUserForString("Is this user trusted? \n0. false \n1. true:");
+				if (!trusted.equals("1") && !trusted.equals("2")) {
 					System.err.println("Invalid response. Please enter a new one.");
 				} else {
 					validResponse = true;
@@ -1074,9 +1074,6 @@ public class Main {
 				
 				UC car = new UC(results.get(i),results.get(i+1),user.getLogin(),results.get(i+2),carRs.get(0),carRs.get(1),carRs.get(2));
 				UC.printUC(car);
-//				System.out.println(i + ". Vin: " + results.get(i) + " Category: " + results.get(i + 1) + " Comfort: "
-//						+ results.get(i + 2) + " Make: " + carRs.get(0) + " Model: " + carRs.get(1) + " Year: "
-//						+ carRs.get(2));
 			}
 
 			boolean doneEdit = false;
