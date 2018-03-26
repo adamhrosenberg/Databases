@@ -51,6 +51,7 @@ nick fav 123
 adddy favs both
 
 adam and nick are 2 degrees away
+
 13) [10pts] Statistics: At any point, a user may want to show
 • the list of the m (say m = 5) most popular UCs (in terms of total rides) for each category,
 • the list of m most expensive UCs (defined by the average cost of all rides on a UC) for each category
