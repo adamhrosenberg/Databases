@@ -44,7 +44,6 @@ public class Period {
 
 		try {
 			rs = stmt.executeQuery(query);
-			ResultSetMetaData metaData = rs.getMetaData();
 			if (!rs.next()) {
 				// no duplicate
 				rs.close();
@@ -54,30 +53,6 @@ public class Period {
 				pid = rs.getString(1);
 				rs.close();
 				return pid;
-			}
-
-		} catch (Exception e) {
-			System.err.println("Error while checking for duplicate time Period field. " + e);
-		}
-		return pid;
-	}
-
-	public static String getNextPid(Connector con) {
-		ResultSet rs;
-		String pid = "";
-		String query = "select max(pid) from Period;";
-
-		try {
-			rs = con.stmt.executeQuery(query);
-			if (!rs.next()) {
-				// no pid
-				rs.close();
-				return pid;
-			} else {
-				pid = rs.getString(1);
-				int ret = Integer.parseInt(pid) + 1;
-				rs.close();
-				return (ret + "");
 			}
 
 		} catch (Exception e) {
