@@ -34,8 +34,7 @@ public class UC {
 
 		boolean insertsSucessful = true;
 
-		String query = "insert into UC (vin, category, login) values ('" + vin + "', '" + category + "', '" + login
-				+ "', '" + comfort + "');";
+		String query = "insert into UC values ('" + vin + "', '" + category + "', '" + login + "', '" + comfort + "');";
 
 		try {
 			int result = con.stmt.executeUpdate(query);
@@ -55,7 +54,7 @@ public class UC {
 		String tid = checkIfCtypeExist(con, make, model, year);
 		if (tid.equals("")) {
 
-			tid = getNextId(con, "tid", "Period");
+			tid = getNextId(con, "tid", "Ctypes");
 			if (tid.equals("")) {
 				tid = "0";
 			}
@@ -155,7 +154,7 @@ public class UC {
 		String tid = checkIfCtypeExist(con, car.getMake(), car.getModel(), car.getYear());
 		if (tid.equals("") || tid == null) {
 
-			tid = getNextId(con, "tid", "Period");
+			tid = getNextId(con, "tid", "Ctypes");
 			if (tid.equals("")) {
 				tid = "0";
 			}
@@ -179,7 +178,8 @@ public class UC {
 
 		// insert into IsCtypes
 		boolean dup = checkIsCtypesDuplicate(con, car.getVin(), tid);
-		if (insertsSucessful && !dup) {
+		boolean dupVin = checkIsCtypesVinExists(con, car.getVin());
+		if (insertsSucessful && !dup && !dupVin) {
 			String IsCtypesQuery = "insert into IsCtypes values ('" + car.getVin() + "', '" + tid + "');";
 			try {
 				int result = con.stmt.executeUpdate(IsCtypesQuery);
@@ -194,7 +194,22 @@ public class UC {
 			} catch (Exception e) {
 				System.err.println("Error adding to IsCtypes" + e);
 			}
-		} else if (insertsSucessful && dup) {
+		} else if (insertsSucessful && !dup && dupVin) {
+			String IsCtypesQuery = "UPDATE IsCtypes SET tid = '" + tid + "' WHERE vin = '" + car.getVin() + "';";
+			try {
+				int result = con.stmt.executeUpdate(IsCtypesQuery);
+				if (result <= 0) {
+					// insert not succesful
+					System.out.println("insert into IsCtypes failed");
+					insertsSucessful = false;
+				} else {
+					return new UC(car.getVin(), car.getCategory(), car.getLogin(), car.getComfort(), car.getMake(),
+							car.getModel(), car.getYear());
+				}
+			} catch (Exception e) {
+				System.err.println("Error adding to IsCtypes" + e);
+			}
+		} else if (insertsSucessful && dup && dupVin) {
 			return new UC(car.getVin(), car.getCategory(), car.getLogin(), car.getComfort(), car.getMake(),
 					car.getModel(), car.getYear());
 		}
@@ -240,23 +255,22 @@ public class UC {
 	 * @param vin
 	 * @return
 	 */
-	public static ResultSet getUCinfoWithLogin(Connector con, String login) {
+	public static ArrayList<String> getUCinfoWithLogin(Connector con, String login) {
 
-		ResultSet rs;
+		ResultSet results;
+		ArrayList<String> result = new ArrayList<String>();
 
 		String query = "select * from UC where login ='" + login + "';";
 
 		try {
-			rs = con.stmt.executeQuery(query);
+			results = con.stmt.executeQuery(query);
 			// ResultSetMetaData metaData = rs.getMetaData();
-			if (!rs.next()) {
-				// not found.
-				rs.close();
-				return null;
-			} else {
-				rs.close();
-				return rs;
+			while (results.next()) {
+				result.add(results.getString("vin"));
+				result.add(results.getString("category"));
+				result.add(results.getString("comfort"));
 			}
+			return result;
 		} catch (Exception e) {
 			System.err.println("Error checking for vin" + e);
 		}
@@ -270,24 +284,22 @@ public class UC {
 	 * @param vin
 	 * @return
 	 */
-	public static ResultSet getCtypes(Connector con, String vin) {
+	public static ArrayList<String> getCtypes(Connector con, String vin) {
 
-		ResultSet rs;
+		ResultSet results;
 
-		String query = "select * from Ctypes type where type.tid = (select isType.tid from IsCtypes where vin = '" + vin
-				+ "';";
-
+		String query = "select * from Ctypes type where type.tid = (select isType.tid from IsCtypes isType where vin = '"
+				+ vin + "');";
+		ArrayList<String> result = new ArrayList<String>();
 		try {
-			rs = con.stmt.executeQuery(query);
+			results = con.stmt.executeQuery(query);
 			// ResultSetMetaData metaData = rs.getMetaData();
-			if (!rs.next()) {
-				// not found.
-				rs.close();
-				return null;
-			} else {
-				rs.close();
-				return rs;
+			while (results.next()) {
+				result.add(results.getString("make"));
+				result.add(results.getString("model"));
+				result.add(results.getString("year"));
 			}
+			return result;
 		} catch (Exception e) {
 			System.err.println("Error checking for vin" + e);
 		}
@@ -586,7 +598,8 @@ public class UC {
 
 		ResultSet rs;
 		String tid = "";
-		String query = "select tid from Ctypes where make ='" + make + "' and model = '" + model + ";";
+		String query = "select tid from Ctypes where make = '" + make + "' and model = '" + model + "' and year = '"
+				+ year + "';";
 
 		try {
 			rs = con.stmt.executeQuery(query);
@@ -606,7 +619,7 @@ public class UC {
 	}
 
 	/**
-	 * Using vin to get the login of driver
+	 * Checks if this vin is already connected with this tid
 	 * 
 	 * @param con
 	 * @param vin
@@ -615,7 +628,35 @@ public class UC {
 	public static boolean checkIsCtypesDuplicate(Connector con, String vin, String tid) {
 
 		ResultSet rs;
-		String query = "select * from Ctypes where vin ='" + vin + "' and tid = '" + tid + ";";
+		String query = "select * from IsCtypes where vin ='" + vin + "' and tid = '" + tid + "';";
+
+		try {
+			rs = con.stmt.executeQuery(query);
+			if (!rs.next()) {
+				// not found.
+				rs.close();
+				return false;
+			} else {
+				rs.close();
+				return true;
+			}
+		} catch (Exception e) {
+			System.err.println("Error checking for vin" + e);
+		}
+		return false;
+	}
+
+	/**
+	 * Checks if this vin is already connected with a tid
+	 * 
+	 * @param con
+	 * @param vin
+	 * @return
+	 */
+	public static boolean checkIsCtypesVinExists(Connector con, String vin) {
+
+		ResultSet rs;
+		String query = "select * from IsCtypes where vin ='" + vin + "';";
 
 		try {
 			rs = con.stmt.executeQuery(query);
@@ -703,7 +744,8 @@ public class UC {
 
 	public static void printUC(UC car) {
 		System.out.println("***CAR INFORMATION***\nvin: " + car.getVin() + "\ncategory: " + car.getCategory()
-				+ "\nowner: " + car.getLogin());
+				+ "\nowner: " + car.getLogin() + "\nComfort: " + car.getComfort() + "\nYear: " + car.getYear()
+				+ "\nMake: " + car.getMake() + "\nModel: " + car.getModel() + "\n");
 	}
 
 }

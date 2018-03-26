@@ -328,7 +328,7 @@ public class Main {
 						"Select a search constraint: \n1. Car Category\n2. Address\n3. Model/Make");
 
 				if (categoryResponse.equals("1")) {
-					if(isAnd){
+					if (isAnd) {
 						category.add("and");
 					} else {
 						category.add("or");
@@ -338,12 +338,12 @@ public class Main {
 
 				} else if (categoryResponse.equals("2")) {
 
-					if(isAnd){
+					if (isAnd) {
 						address.add("and");
 					} else {
 						address.add("or");
 					}
-					
+
 					String Saddress = promptUserForString("Search by: \n1. City\n2. State");
 					if (Saddress.equals("1")) {
 						address.add("city");
@@ -359,12 +359,12 @@ public class Main {
 
 				} else if (categoryResponse.equals("3")) {
 
-					if(isAnd){
+					if (isAnd) {
 						make.add("and");
 					} else {
 						make.add("or");
 					}
-					
+
 					String result = promptUserForString("Search by: \n1. Make\n2. Model");
 					if (result.equals("1")) {
 						make.add("make");
@@ -391,7 +391,7 @@ public class Main {
 						inputDone = true;
 					} else if (response.equals("y")) {
 						validResponse = true;
-						
+
 						// ask user if wanted to add constraint with and/or
 						boolean andOrResponse = false;
 						while (!andOrResponse) {
@@ -406,7 +406,7 @@ public class Main {
 								System.err.println("Invalid response please try again");
 							}
 						}
-						
+
 					} else {
 						System.err.println("Invalid response please try again");
 					}
@@ -483,7 +483,7 @@ public class Main {
 
 		destination = promptUserForString("Enter the destination for your trip:");
 		numOfPpl = promptUserForString("Enter the number of person will be in the ride:");
-		
+
 		// get date from user
 		// TODO: need to check date formating
 		date = promptUserForString("Enter the date that you want to record the ride (with the form YYYY/MM/DD) :");
@@ -507,7 +507,7 @@ public class Main {
 			}
 			pid = Period.timeExist(from, to, con.stmt);
 			if (pid == null || pid.equals("")) {
-				pid = Period.getNextPid(con);
+				pid = UC.getNextId(con, "pid", "Period");
 				Period time = new Period(pid, from, to);
 				Period.createNewPeriod(time, con.stmt);
 			} else {
@@ -601,7 +601,7 @@ public class Main {
 				correctVin = true;
 			}
 		}
-		
+
 		destination = promptUserForString("Enter the destination for your trip:");
 		numOfPpl = promptUserForString("Enter the number of person will be in the ride:");
 
@@ -888,24 +888,23 @@ public class Main {
 
 	}
 
-
-	private static void degreesOfSeperation(Connector con){
+	private static void degreesOfSeperation(Connector con) {
 		String user1 = promptUserForString("Please enter the first login");
 		String user2 = promptUserForString("Pleaes enter the second long");
 
 		int degree = UU.usersDegreeOfSeperation(con, user1, user2);
 
-		if(degree == 0){
+		if (degree == 0) {
 			System.out.println("Users have no degree of separation.");
-		}else if(degree == 1){
+		} else if (degree == 1) {
 			System.out.println("Users are separated by 1 degree");
-		}else if(degree == 2){
+		} else if (degree == 2) {
 			System.out.println("Users are separated by 2 degres");
 
 		}
-//		if(!UU.isLoginDuplicate(user1, con.stmt)){
-//
-//		}
+		// if(!UU.isLoginDuplicate(user1, con.stmt)){
+		//
+		// }
 	}
 
 	/**
@@ -971,7 +970,7 @@ public class Main {
 				System.out.println("Please enter the make year in xxxx format. Please enter a new one.");
 			}
 		}
-		
+
 		make = promptUserForString("Please enter the make company for your car");
 		model = promptUserForString("Please enter the model for your car");
 
@@ -991,52 +990,50 @@ public class Main {
 		// to edit.
 		// this way we ensure that the UD is only editing UCs that the UD owns.
 		System.out.println("List of your car(s)");
-		ResultSet results = UC.getUCinfoWithLogin(con, user.getLogin());
+		ArrayList<String> results = UC.getUCinfoWithLogin(con, user.getLogin());
 		if (results == null) {
 			System.out.println("There is no car registerd.");
 		} else {
-			try {
-				int i = 1;
-				while (results.next()) {
-					ResultSet carRs = UC.getCtypes(con, results.getString("vin"));
+			for (int i = 0; i < results.size(); i += 3) {
+				ArrayList<String> carRs = UC.getCtypes(con, results.get(i));
+				
+				UC car = new UC(results.get(i),results.get(i+1),user.getLogin(),results.get(i+2),carRs.get(0),carRs.get(1),carRs.get(2));
+				UC.printUC(car);
+//				System.out.println(i + ". Vin: " + results.get(i) + " Category: " + results.get(i + 1) + " Comfort: "
+//						+ results.get(i + 2) + " Make: " + carRs.get(0) + " Model: " + carRs.get(1) + " Year: "
+//						+ carRs.get(2));
+			}
 
-					System.out.println(i + ". Vin: " + results.getString("vin") + " Category: "
-							+ results.getString("category") + " Comfort: " + results.getString("comfort") + " Make: "
-							+ carRs.getString("make") + " Model: " + carRs.getString("model"));
-					i++;
-				}
+			boolean doneEdit = false;
+			while (!doneEdit) {
+				System.out.println("Please enter the following information.");
+				String vin = promptUserForString("Enter vin for car: ");
+				System.out.println("Enter adjusted category: ");
+				String category = categorySelect();
+				System.out.println("Enter adjusted comfort: ");
+				String comfort = comfortSelect();
+				String make = promptUserForString("Enter adjusted make company: ");
+				String model = promptUserForString("Enter adjusted model: ");
+				String year = promptUserForString("Enter adjusted make year: ");
 
-				boolean doneEdit = false;
-				while (!doneEdit) {
-					System.out.println("Please enter the following information.");
-					String vin = promptUserForString("Enter vin for car: ");
-					String category = promptUserForString("Enter adjusted category: ");
-					String comfort = promptUserForString("Enter adjusted comfort: ");
-					String make = promptUserForString("Enter adjusted make company: ");
-					String model = promptUserForString("Enter adjusted model: ");
-					String year = promptUserForString("Enter adjusted make year: ");
+				UC car = new UC(vin, category, user.getLogin(), comfort, make, model, year);
+				UC.editUC(con, car);
 
-					UC car = new UC(vin, category, user.getLogin(), comfort, make, model, year);
-					UC.editUC(con, car);
-
-					boolean validResponse = true;
-					while (validResponse) {
-						String toReserve = promptUserForString("Edit information for other car? y/n");
-						if (toReserve.equals("y")) {
-							doneEdit = false;
-							validResponse = false;
-						} else if (toReserve.equals("n")) {
-							doneEdit = true;
-							validResponse = false;
-						} else {
-							System.err.println("Invalid response please try again");
-						}
+				boolean validResponse = true;
+				while (validResponse) {
+					String toReserve = promptUserForString("Edit information for other car? y/n");
+					if (toReserve.equals("y")) {
+						doneEdit = false;
+						validResponse = false;
+					} else if (toReserve.equals("n")) {
+						doneEdit = true;
+						validResponse = false;
+					} else {
+						System.err.println("Invalid response please try again");
 					}
 				}
-
-			} catch (SQLException e) {
-				System.err.println("Error while editing UC");
 			}
+
 		}
 
 	}
@@ -1102,7 +1099,7 @@ public class Main {
 				// check for duplicate time here
 				String pid = Period.timeExist(from, to, connector.stmt);
 				if (pid.equals("") || pid == null) {
-					pid = Period.getNextPid(connector);
+					pid = UC.getNextId(connector, "pid", "Period");
 					if (pid.equals("")) {
 						pid = "0";
 					}
@@ -1135,32 +1132,6 @@ public class Main {
 			System.err.println("ERROR while registering user. Please try again.");
 			// go(connector);
 		}
-	}
-
-	private static boolean checkTimeFormat(String input) {
-
-		if (input != null) {
-			String[] split = input.split(":");
-			if (split.length == 2) {
-				int hour = Integer.parseInt(split[0]);
-				if (hour >= 0 && hour <= 24) {
-					int minute = Integer.parseInt(split[1]);
-					if (minute >= 0 && minute <= 60) {
-						return true;
-					} else {
-						return false;
-					}
-				} else {
-					return false;
-				}
-
-			} else {
-				return false;
-			}
-
-		}
-
-		return false;
 	}
 
 	/******
