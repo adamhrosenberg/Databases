@@ -70,4 +70,10 @@ feedbacks combined)
 Username : 5530u47	
 Password : u2ebdcje
 
+admin credentials:
+
+login: admin
+
+password: admin
+
 

@@ -55,6 +55,7 @@ public class Main {
 		System.out.println("\n \tWelcome to U-Uber System");
 		System.out.println("1. UU Login");
 		System.out.println("2. Register");
+		System.out.println("2. Register");
 		System.out.println("3. Admin Login");
 		System.out.println("4. Exit ");
 		System.out.println("Enter your choice:");
@@ -81,6 +82,7 @@ public class Main {
 	public static void displayAdminMeun() {
 		System.out.println("	Welcome Admin	");
 		System.out.println("1. Award user ");
+		System.out.println("2. Exit");
 		System.out.println("Enter your choice");
 	}
 
@@ -161,6 +163,34 @@ public class Main {
 
 	}
 
+	private static void promptAdminLog(Connector con){
+		String login = "";
+		String password = "";
+
+		boolean wrongUser = true;
+		while (wrongUser) {
+			login = promptUserForString("Please enter login:");
+			if (!login.equals("admin")) {
+				System.err.println("Invalid admin credentials please try again");
+			} else {
+				wrongUser = false;
+			}
+		}
+
+		boolean wrongPass = true;
+		while (wrongPass) {
+			password = promptUserForString(("Please enter password:"));
+			if (!password.equals("admin")) {
+				System.err.println("Invalid admin credentials please try again");
+			} else {
+				wrongPass = false;
+				adminLogin(con);
+			}
+		}
+	}
+
+
+
 	public static void promptLogin(Connector con) {
 
 		String login = "";
@@ -217,7 +247,7 @@ public class Main {
 				getUserInfo(con);
 				break;
 			} else if (c == LOGIN_RESPONSES.ADMIN_LOGIN.getValue()) {
-
+				promptAdminLog(con);
 				break;
 			} else if (c == LOGIN_RESPONSES.EXIT.getValue()) {
 				closeConnection(con);
@@ -240,6 +270,44 @@ public class Main {
 
 	}
 
+	/**
+	 * admin login
+	 */
+	private static void adminLogin(Connector con){
+		String choice = "";
+		int c = 0;
+		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+		while (true) {
+			displayAdminMeun();
+
+			try {
+				while ((choice = in.readLine()) == null && choice.length() == 0)
+					;
+			} catch (Exception e) {
+				System.err.println("Error reading input" + e);
+			}
+
+			try {
+				c = Integer.parseInt(choice);
+			} catch (Exception e) {
+				continue;
+			}
+
+			if (c == 1) {
+				award(con);
+			} else if (c == 2) {
+				closeConnection(con);
+				break;
+			}
+		}
+	}
+
+	private static void award(Connector con){
+
+		int m = Integer.parseInt(promptUserForString("Enter m"));
+		UU.displayUsersToAdmin(con, m);
+//		UU.awardUser()
+	}
 	/**
 	 * Once user is logged in they are redirected to this menu.
 	 * 
@@ -295,7 +363,7 @@ public class Main {
 			} else if (c == MENU_RESPONSES.TWODEGREES.getValue()) {
 				degreesOfSeperation(con);
 			} else if (c == MENU_RESPONSES.STATS.getValue()) {
-
+                getStats(con);
 			} else if (c == MENU_RESPONSES.AWARD.getValue()) {
 				System.out.println("REMOVE THIS");
 			} else if (c == MENU_RESPONSES.EXIT.getValue()) {
@@ -454,6 +522,13 @@ public class Main {
 		}
 
 	}
+
+
+	private static void getStats(Connector con){
+	    int m = Integer.parseInt(promptUserForString("Enter number of users you'd like to see stats for (m)"));
+
+	    UU.statsDriver(con, m);
+    }
 
 	/**
 	 * Reserve a UC and display the information
@@ -824,7 +899,7 @@ public class Main {
 			boolean validResponse = false;
 			while (!validResponse) {
 				trusted = promptUserForString("Is this user trusted? \n0. false \n1. true:");
-				if (!trusted.equals("1") && !trusted.equals("2")) {
+				if (!trusted.equals("0") && !trusted.equals("1")) {
 					System.err.println("Invalid response. Please enter a new one.");
 				} else {
 					validResponse = true;
