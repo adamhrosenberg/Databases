@@ -12,3 +12,20 @@ describe UD;
 describe UC;
 
 show create table UC;
+
+
+set Foreign_key_checks = 0;
+truncate Available;
+truncate Ctypes;
+truncate Favorites;
+truncate Feedback;
+truncate IsCtypes;
+truncate Period;
+truncate Rates;
+truncate Reserve;
+truncate Ride;
+truncate Trust;
+truncate UC;
+truncate UD;
+truncate UU;
+set Foreign_key_checks = 1;
