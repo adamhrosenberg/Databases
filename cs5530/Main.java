@@ -899,7 +899,7 @@ public class Main {
 			boolean validResponse = false;
 			while (!validResponse) {
 				trusted = promptUserForString("Is this user trusted? \n0. false \n1. true:");
-				if (!trusted.equals("1") && !trusted.equals("2")) {
+				if (!trusted.equals("0") && !trusted.equals("1")) {
 					System.err.println("Invalid response. Please enter a new one.");
 				} else {
 					validResponse = true;
