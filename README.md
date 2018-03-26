@@ -1,6 +1,6 @@
 # U-Uber
 
-All features work. Every users password is test.
+All features work except the admin does not receive the list of users as specified. The admin can award any user though. . Every users password is test.
 
 
 Datbase credentials:
