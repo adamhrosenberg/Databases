@@ -55,7 +55,6 @@ public class Main {
 		System.out.println("\n \tWelcome to U-Uber System");
 		System.out.println("1. UU Login");
 		System.out.println("2. Register");
-		System.out.println("2. Register");
 		System.out.println("3. Admin Login");
 		System.out.println("4. Exit ");
 		System.out.println("Enter your choice:");
@@ -306,7 +305,9 @@ public class Main {
 
 		int m = Integer.parseInt(promptUserForString("Enter m"));
 		UU.displayUsersToAdmin(con, m);
-//		UU.awardUser()
+
+		String login = promptUserForString("Enter user login to give award to");
+		UU.awardUser(con, login);
 	}
 	/**
 	 * Once user is logged in they are redirected to this menu.
