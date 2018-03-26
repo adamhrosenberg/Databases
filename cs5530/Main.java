@@ -52,7 +52,7 @@ public class Main {
 	private static UU user;
 
 	public static void displayInitialMenu() {
-		System.out.println("        Welcome to U-Uber System     ");
+		System.out.println("\n \tWelcome to U-Uber System");
 		System.out.println("1. UU Login");
 		System.out.println("2. Register");
 		System.out.println("3. Admin Login");
@@ -70,8 +70,8 @@ public class Main {
 		System.out.println("6. Rate");
 		System.out.println("7. Trust another user");
 		System.out.println("8. Search for UC");
-		System.out.println("9. Get useful feedbacks");
-		System.out.println("10. Two Degrees");
+		System.out.println("9. Get useful feedback");
+		System.out.println("10. Determine degrees of separation for 2 users");
 		System.out.println("11. Get user stats");
 		System.out.println("12. Give user award");
 		System.out.println("13. Exit");
@@ -294,7 +294,7 @@ public class Main {
 			} else if (c == MENU_RESPONSES.USEFULFEEDBACKS.getValue()) {
 				usefulFeedbacks(con);
 			} else if (c == MENU_RESPONSES.TWODEGREES.getValue()) {
-
+				degreesOfSeperation(con);
 			} else if (c == MENU_RESPONSES.STATS.getValue()) {
 
 			} else if (c == MENU_RESPONSES.AWARD.getValue()) {
@@ -817,6 +817,26 @@ public class Main {
 			System.err.println("Error printing useful feedbacks" + e);
 		}
 
+	}
+
+
+	private static void degreesOfSeperation(Connector con){
+		String user1 = promptUserForString("Please enter the first login");
+		String user2 = promptUserForString("Pleaes enter the second long");
+
+		int degree = UU.usersDegreeOfSeperation(con, user1, user2);
+
+		if(degree == 0){
+			System.out.println("Users have no degree of separation.");
+		}else if(degree == 1){
+			System.out.println("Users are separated by 1 degree");
+		}else if(degree == 2){
+			System.out.println("Users are separated by 2 degres");
+
+		}
+//		if(!UU.isLoginDuplicate(user1, con.stmt)){
+//
+//		}
 	}
 
 	/**

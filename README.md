@@ -39,6 +39,18 @@ by users like ‘X’.
 defined as follows: Two users ‘A’ and ‘B’ are 1-degree away if they have both favorited at least one common
 UC; they are 2-degrees away if there exists an user ‘C’ who is 1-degree away from each of ‘A’ and ‘B’, AND
 ‘A’ and ‘B’ are not 1-degree away at the same time.
+
+one degree:
+adddy and adam are 1 degree away
+(both fav 1)
+
+two degree:
+adam fav 1
+nick fav 123
+
+adddy favs both
+
+adam and nick are 2 degrees away
 13) [10pts] Statistics: At any point, a user may want to show
 • the list of the m (say m = 5) most popular UCs (in terms of total rides) for each category,
 • the list of m most expensive UCs (defined by the average cost of all rides on a UC) for each category

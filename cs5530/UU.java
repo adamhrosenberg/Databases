@@ -4,6 +4,7 @@ package cs5530;
 import java.lang.*;
 import java.sql.*;
 import java.io.*;
+import java.util.ArrayList;
 
 /**
  * This class holds methods related to the UU table.
@@ -224,6 +225,113 @@ public class UU {
         } catch(Exception e){
             System.err.println("Error while checking for duplicate award. " + e);
         }
+        return false;
+    }
+
+
+    /**
+     * Given two users, determine their degree of seperation.
+     *
+     * @param con
+     * @param login1 first username login
+     * @param login2 second username login
+     * @return
+     * 0 - if no degree
+     * 1 - if 1 degree of seperation
+     * 2 - if 2 degrees of seperation
+     */
+    public static int usersDegreeOfSeperation(Connector con, String login1, String login2){
+        if(checkFirstDegree(con, login1, login2)){
+            return 1;
+        }
+
+        if(checkForSecondDegree(con, login1, login2)){
+            return 2;
+        }
+
+        return 0;
+    }
+
+    private static boolean checkFirstDegree(Connector con, String login1, String login2){
+        ResultSet rs = null;
+
+        // checking for first degree of separation
+        ArrayList<Integer> user1VINs = new ArrayList<>();
+        ArrayList<Integer> user2VINs = new ArrayList<>();
+        String query1 = "select Favorites.vin from Favorites where Favorites.login = '"+login1+"';";
+        String query2 = "select Favorites.vin from Favorites where Favorites.login = '"+login2+"';";
+
+        try{
+            rs = con.stmt.executeQuery(query1);
+
+            // iterate through rs to get vins.
+
+            while (rs.next()) {
+                String columnValue = rs.getString(1);
+                int vin = rs.getInt("vin");
+                user1VINs.add(vin);
+            }
+
+            rs = con.stmt.executeQuery(query2);
+
+            while(rs.next()){
+                int vin = rs.getInt("vin");
+                user2VINs.add(vin);
+            }
+
+            ArrayList<Integer> commonVINs = new ArrayList<>(user1VINs);
+            commonVINs.retainAll(user2VINs);
+
+            if(commonVINs.size() > 0){
+                return true;
+            }
+
+        }catch(Exception e){
+            System.err.println("Error fetching degrees of separation for users");
+        }
+
+        return false;
+    }
+
+    /**
+     * Checking if a user connects the two users.
+     * @param con
+     * @param login1
+     * @param login2
+     * @return
+     */
+    private static boolean checkForSecondDegree(Connector con, String login1, String login2){
+
+        //select UU.login from UU where UU.login != 'adam' and UU.login != 'adddy';
+        String query = "select UU.login from UU where UU.login != '" + login1 + "' and UU.login != '" + login2 + "';";
+        ArrayList<String> users = new ArrayList<>();
+        ResultSet rs = null;
+
+        try{
+            rs = con.stmt.executeQuery(query);
+
+            while (rs.next()) {
+                String user = rs.getString("login");
+                users.add(user);
+            }
+        }catch(Exception e){
+            System.err.println("Error checknig second degree" + e);
+        }
+
+
+        // now we have a list of users.
+        // so, for every user check if it is 1 degree separated from user 1. if it is, check if its 1 degree from 2.
+
+        for(int i = 0; i < users.size(); i++){
+            if(checkFirstDegree(con, users.get(i), login1)){
+                if(checkFirstDegree(con, users.get(i), login2)){
+                    // print out the user who is the second degree of separation.
+//                    System.out.println(users.get(i) + " separates " + login1 + " and " + login2);
+                    return true;
+                }
+            }
+        }
+
         return false;
     }
 
