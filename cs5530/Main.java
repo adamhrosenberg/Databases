@@ -163,7 +163,7 @@ public class Main {
 
 	}
 
-	private static void promptAdminLog(Connector con){
+	private static void promptAdminLog(Connector con) {
 		String login = "";
 		String password = "";
 
@@ -188,8 +188,6 @@ public class Main {
 			}
 		}
 	}
-
-
 
 	public static void promptLogin(Connector con) {
 
@@ -273,7 +271,7 @@ public class Main {
 	/**
 	 * admin login
 	 */
-	private static void adminLogin(Connector con){
+	private static void adminLogin(Connector con) {
 		String choice = "";
 		int c = 0;
 		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
@@ -302,12 +300,13 @@ public class Main {
 		}
 	}
 
-	private static void award(Connector con){
+	private static void award(Connector con) {
 
 		int m = Integer.parseInt(promptUserForString("Enter m"));
 		UU.displayUsersToAdmin(con, m);
-//		UU.awardUser()
+		// UU.awardUser()
 	}
+
 	/**
 	 * Once user is logged in they are redirected to this menu.
 	 * 
@@ -363,7 +362,7 @@ public class Main {
 			} else if (c == MENU_RESPONSES.TWODEGREES.getValue()) {
 				degreesOfSeperation(con);
 			} else if (c == MENU_RESPONSES.STATS.getValue()) {
-                getStats(con);
+				getStats(con);
 			} else if (c == MENU_RESPONSES.AWARD.getValue()) {
 				System.out.println("REMOVE THIS");
 			} else if (c == MENU_RESPONSES.EXIT.getValue()) {
@@ -457,6 +456,7 @@ public class Main {
 					if (response.equals("n")) {
 						validResponse = true;
 						inputDone = true;
+						invalidConstraintResponse = false;
 					} else if (response.equals("y")) {
 						validResponse = true;
 
@@ -503,32 +503,27 @@ public class Main {
 		// searching,
 		// let me know if you have any suggestions
 
-		ResultSet results = UC.UCBrosing(con, category, address, make, sort);
+		ArrayList<String> results = UC.UCBrosing(con, category, address, make, sort);
+		if (results.size() == 0) {
+			System.out.println("There are no car available with these constraints");
+		} else {
 
-		int i = 1;
-		try {
-			if (results == null) {
-				System.err.println("No cars with these constraints.");
-			}
-			while (results.next()) {
+			for (int i = 0; i < results.size(); i += 3) {
+				ArrayList<String> carRs = UC.getCtypes(con, results.get(i));
 
-				System.out.println(i + ". Car ID: " + results.getString("vin") + " Driver ID: "
-						+ results.getString("login") + " Category: " + results.getString("category") + " Comfort: "
-						+ results.getString("comfort"));
-				i++;
+				UC car = new UC(results.get(i), results.get(i + 1), user.getLogin(), results.get(i + 2), carRs.get(0),
+						carRs.get(1), carRs.get(2));
+				UC.printUC(car);
 			}
-		} catch (SQLException e) {
-			System.err.println("Error printing suggestions" + e);
 		}
 
 	}
 
+	private static void getStats(Connector con) {
+		int m = Integer.parseInt(promptUserForString("Enter number of users you'd like to see stats for (m)"));
 
-	private static void getStats(Connector con){
-	    int m = Integer.parseInt(promptUserForString("Enter number of users you'd like to see stats for (m)"));
-
-	    UU.statsDriver(con, m);
-    }
+		UU.statsDriver(con, m);
+	}
 
 	/**
 	 * Reserve a UC and display the information
@@ -630,22 +625,18 @@ public class Main {
 	private static void suggestions(Connector con, String vin) {
 
 		// get and display suggestions
-		ResultSet results = UC.getSuggestions(con, vin);
+		ArrayList<String> results = UC.getSuggestions(con, vin);
+		if (results.size() == 0) {
+			System.out.println("There are no suggested car available with these constraints");
+		} else {
+			System.out.println("Suggested Cars:");
+			for (int i = 0; i < results.size(); i += 3) {
+				ArrayList<String> carRs = UC.getCtypes(con, results.get(i));
 
-		int i = 1;
-		try {
-			if (results == null) {
-				System.err.println("No suggestions.");
+				UC car = new UC(results.get(i), results.get(i + 1), user.getLogin(), results.get(i + 2), carRs.get(0),
+						carRs.get(1), carRs.get(2));
+				UC.printUC(car);
 			}
-			while (results.next()) {
-
-				System.out.println(i + ". Car ID: " + results.getString("vin") + " Driver ID: "
-						+ results.getString("login") + " Category: " + results.getString("category") + " Comfort: "
-						+ results.getString("comfort"));
-				i++;
-			}
-		} catch (SQLException e) {
-			System.err.println("Error printing suggestions" + e);
 		}
 	}
 

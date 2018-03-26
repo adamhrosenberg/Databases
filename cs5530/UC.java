@@ -338,26 +338,26 @@ public class UC {
 		}
 	}
 
-	public static ResultSet getSuggestions(Connector con, String vin) {
-		ResultSet rs;
+	public static ArrayList<String> getSuggestions(Connector con, String vin) {
+		ResultSet results;
+		ArrayList<String> result = new ArrayList<String>();
 
 		String query = "select * from UC car where car.vin in (select r1.vin from Reserve r1, Reserve r2 "
 				+ "where r1.login = r2.login and r1.vin = '" + vin + "' and r2.vin != '" + vin + "') "
 				+ "and car.vin != '" + vin + "' group by car.vin ORDER BY count(*) desc;";
 
 		try {
-			rs = con.stmt.executeQuery(query);
+			results = con.stmt.executeQuery(query);
 			// ResultSetMetaData metaData = rs.getMetaData();
-			if (!rs.next()) {
-				// not found.
-				rs.close();
-				return null;
-			} else {
-				rs.close();
-				return rs;
+			while (results.next()) {
+				result.add(results.getString("vin"));
+				result.add(results.getString("login"));
+				result.add(results.getString("category"));
+				result.add(results.getString("comfort"));
 			}
+			return result;
 		} catch (Exception e) {
-			System.err.println("Error getting useful feedbacks" + e);
+			System.err.println("Error getting suggestions" + e);
 		}
 		return null;
 	}
@@ -396,9 +396,10 @@ public class UC {
 		}
 	}
 
-	public static ResultSet UCBrosing(Connector con, ArrayList<String> category, ArrayList<String> address,
+	public static ArrayList<String> UCBrosing(Connector con, ArrayList<String> category, ArrayList<String> address,
 			ArrayList<String> make, String sort) {
-		ResultSet rs;
+		ResultSet results;
+		ArrayList<String> result = new ArrayList<String>();
 
 		boolean first = true;
 
@@ -425,7 +426,10 @@ public class UC {
 				if (address.get(i).equals("or") && i == 0 && !first) {
 					query = query + " or car.login in (select u.login from UU u where u." + address.get(i + 1) + " = '"
 							+ address.get(i + 2) + "'";
-				} else if (first && i == 0) {
+				} else if (address.get(i).equals("and") && i == 0 && !first) {
+					query = query + " and car.login in (select u.login from UU u where u." + address.get(i + 1) + " = '"
+							+ address.get(i + 2) + "'";
+				}else if (first && i == 0) {
 					query = query + " and car.login in (select u.login from UU u where u." + address.get(i + 1) + " = '"
 							+ address.get(i + 2) + "'";
 					first = false;
@@ -443,6 +447,9 @@ public class UC {
 				if (make.get(i).equals("or") && i == 0 && !first) {
 					query = query + " or car.vin in (select vin from IsCtypes it, Ctypes T where it.tid = T.tid and T."
 							+ make.get(i + 1) + " = '" + make.get(i + 2) + "'";
+				} else if (make.get(i).equals("and") && i == 0 && !first) {
+					query = query + " and car.vin in (select vin from IsCtypes it, Ctypes T where it.tid = T.tid and T."
+							+ make.get(i + 1) + " = '" + make.get(i + 2) + "'";
 				} else if (first && i == 0) {
 					query = query + " and car.vin in (select vin from IsCtypes it, Ctypes T where it.tid = T.tid and T."
 							+ make.get(i + 1) + " = '" + make.get(i + 2) + "'";
@@ -459,20 +466,23 @@ public class UC {
 		query = query + " group by car.vin ORDER BY score desc;";
 
 		try {
-			rs = con.stmt.executeQuery(query);
+			results = con.stmt.executeQuery(query);
 			// ResultSetMetaData metaData = rs.getMetaData();
-			if (!rs.next()) {
-				// not found.
-				rs.close();
-				return null;
-			} else {
-				rs.close();
-				return rs;
+			while (results.next()) {
+				result.add(results.getString("vin"));
+				result.add(results.getString("login"));
+				result.add(results.getString("category"));
+				result.add(results.getString("comfort"));
+				result.add(results.getString("score"));
 			}
+			return result;
 		} catch (Exception e) {
 			System.err.println("Error getting useful feedbacks" + e);
 		}
 		return null;
+		
+		
+		
 	}
 
 	/**
