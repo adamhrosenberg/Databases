@@ -344,7 +344,8 @@ public class UU {
         mMostPopularUC(con, m, categories);
         System.out.println("\n");
         mMostExpevsiveUC(con, m, categories);
-//        mHighestRatedUD(con, m, categories);
+        System.out.println("\n");
+        mHighestRatedUD(con, m, categories);
     }
 
     /**
@@ -432,8 +433,31 @@ public class UU {
      * @param con
      * @param m
      */
-    public static void mHighestRatedUD(Connector con, int m, ArrayList<String> c){
+    public static void mHighestRatedUD(Connector con, int m, ArrayList<String> categories){
+        System.out.println(m + " highest rated users in each category");
 
+        ResultSet rs = null;
+        try{
+            // select uc.vin, Count(ride.rid) as NumberRidesForVin from UC uc, Ride ride where (ride.vin = uc.vin and uc.category = 'SUV')
+            // Group by uc.vin order by NumberRidesForVin DESC;
+            for(int i = 0; i < categories.size(); i++){
+                String query = "select uc.login, avg(feedback.score) as FeedbackAverage from UC uc, Feedback feedback where (uc.vin = feedback.vin and uc.category = " +
+                        "'" + categories.get(i) +  "') group by uc.login order by avg(feedback.score) desc;\n";
+                rs = con.stmt.executeQuery(query);
+                int index = 0;
+                System.out.println("Printing most expensive UCs for category: " + categories.get(i));
+                while (rs.next() && index < m) {
+                    String feedbackAverage = rs.getString("FeedbackAverage");
+                    String login = rs.getString("login");
+
+                    System.out.println("UD login: " + login + "\tFeedbackAverage: " + feedbackAverage);
+                    index++;
+                }
+            }
+
+        }catch(Exception e){
+            System.err.println("Error getting most popular UCs" + e);
+        }
     }
 
     /**
