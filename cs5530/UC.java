@@ -3,6 +3,7 @@ package cs5530;
 import javax.swing.plaf.metal.MetalComboBoxButton;
 import java.lang.*;
 import java.sql.*;
+import java.util.ArrayList;
 import java.io.*;
 
 public class UC {
@@ -375,6 +376,85 @@ public class UC {
 			System.err.println("There was an error creating the user" + e);
 			return false;
 		}
+	}
+
+	public static ResultSet UCBrosing(Connector con, ArrayList<String> category, ArrayList<String> address,
+			ArrayList<String> make, String sort) {
+		ResultSet rs;
+
+		boolean first = true;
+
+		String query = "";
+		if (sort != null && sort.equals("1")) {
+			query = "select car.vin, car.login, car.category, car.comfort, avg(feed.score) as score "
+					+ "from UC car, Feedback feed where car.vin = feed.vin";
+		} else if (sort != null && sort.equals("2")) {
+			query = "select car.vin, car.login, car.category, car.comfort, avg(feed.score) as score "
+					+ "from UC car, Feedback feed Trust trust where car.vin = feed.vin and trust.isTrusted = 'true'";
+		}
+
+		for (int i = 0; i < category.size(); i += 2) {
+			if (category.get(i).equals("or") && !first) {
+				query = query + " or car.category = '" + category.get(i + 1) + "'";
+			} else {
+				query = query + " and car.category = '" + category.get(i + 1) + "'";
+				first = false;
+			}
+		}
+
+		if (address.size() >= 3) {
+			for (int i = 0; i < address.size(); i += 3) {
+				if (address.get(i).equals("or") && i == 0 && !first) {
+					query = query + " or car.login in (select u.login from UU u where u." + address.get(i + 1) + " = '"
+							+ address.get(i + 2) + "'";
+				} else if (first && i == 0) {
+					query = query + " and car.login in (select u.login from UU u where u." + address.get(i + 1) + " = '"
+							+ address.get(i + 2) + "'";
+					first = false;
+				} else if (address.get(i).equals("or") && i != 0) {
+					query = query + " or u." + address.get(i + 1) + " = '" + address.get(i + 2) + "'";
+				} else if (address.get(i).equals("and") && i != 0) {
+					query = query + " and u." + address.get(i + 1) + " = '" + address.get(i + 2) + "'";
+				}
+			}
+
+			query = query + ")";
+		}
+		if (make.size() >= 3) {
+			for (int i = 0; i < make.size(); i += 3) {
+				if (make.get(i).equals("or") && i == 0 && !first) {
+					query = query + " or car.vin in (select vin from IsCtypes it, Ctypes T where it.tid = T.tid and T."
+							+ make.get(i + 1) + " = '" + make.get(i + 2) + "'";
+				} else if (first && i == 0) {
+					query = query + " and car.vin in (select vin from IsCtypes it, Ctypes T where it.tid = T.tid and T."
+							+ make.get(i + 1) + " = '" + make.get(i + 2) + "'";
+				} else if (make.get(i).equals("or") && i != 0) {
+					query = query + " or T." + make.get(i + 1) + " = '" + make.get(i + 2) + "'";
+				} else if (make.get(i).equals("and") && i != 0) {
+					query = query + " and T." + make.get(i + 1) + " = '" + make.get(i + 2) + "'";
+				}
+			}
+
+			query = query + ")";
+		}
+
+		query = query + " group by car.vin ORDER BY score desc;";
+
+		try {
+			rs = con.stmt.executeQuery(query);
+			// ResultSetMetaData metaData = rs.getMetaData();
+			if (!rs.next()) {
+				// not found.
+				rs.close();
+				return null;
+			} else {
+				rs.close();
+				return rs;
+			}
+		} catch (Exception e) {
+			System.err.println("Error getting useful feedbacks" + e);
+		}
+		return null;
 	}
 
 	/**

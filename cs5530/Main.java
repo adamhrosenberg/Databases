@@ -78,7 +78,7 @@ public class Main {
 		System.out.println("Enter your choice:");
 	}
 
-	public static void displayAdminMeun(){
+	public static void displayAdminMeun() {
 		System.out.println("	Welcome Admin	");
 		System.out.println("1. Award user ");
 		System.out.println("Enter your choice");
@@ -216,11 +216,10 @@ public class Main {
 			} else if (c == LOGIN_RESPONSES.REGISTER.getValue()) {
 				getUserInfo(con);
 				break;
-			}
-			else if(c == LOGIN_RESPONSES.ADMIN_LOGIN.getValue()){
+			} else if (c == LOGIN_RESPONSES.ADMIN_LOGIN.getValue()) {
 
 				break;
-			}else if (c == LOGIN_RESPONSES.EXIT.getValue()) {
+			} else if (c == LOGIN_RESPONSES.EXIT.getValue()) {
 				closeConnection(con);
 				break;
 			} else {
@@ -314,46 +313,67 @@ public class Main {
 	 */
 	private static void UCBrowsing(Connector con) {
 
+		ArrayList<String> category = new ArrayList<String>();
+		ArrayList<String> address = new ArrayList<String>();
+		ArrayList<String> make = new ArrayList<String>();
+		String sort = "";
+
+		boolean isAnd = true;
+
 		boolean inputDone = false;
 		while (!inputDone) {
-			ArrayList<String> constraints = new ArrayList<String>();
 			boolean invalidConstraintResponse = true;
 			while (invalidConstraintResponse) {
 				String categoryResponse = promptUserForString(
 						"Select a search constraint: \n1. Car Category\n2. Address\n3. Model/Make");
 
 				if (categoryResponse.equals("1")) {
-
+					if(isAnd){
+						category.add("and");
+					} else {
+						category.add("or");
+					}
 					String cat = categorySelect();
-					constraints.add("category");
-					constraints.add(cat);
+					category.add(cat);
 
 				} else if (categoryResponse.equals("2")) {
 
-					String address = promptUserForString("Search by: \n1. City\n2. State");
-					if (address.equals("1")) {
-						constraints.add("city");
+					if(isAnd){
+						address.add("and");
+					} else {
+						address.add("or");
+					}
+					
+					String Saddress = promptUserForString("Search by: \n1. City\n2. State");
+					if (Saddress.equals("1")) {
+						address.add("city");
 						String city = promptUserForString("Enter city name:");
-						constraints.add(city);
-					} else if (address.equals("2")) {
-						constraints.add("state");
+						address.add(city);
+					} else if (Saddress.equals("2")) {
+						address.add("state");
 						String state = promptUserForString("Enter state abbreviation:");
-						constraints.add(state);
+						address.add(state);
 					} else {
 						System.err.println("Invalid response please try again");
 					}
 
 				} else if (categoryResponse.equals("3")) {
 
-					String address = promptUserForString("Search by: \n1. Make\n2. Model");
-					if (address.equals("1")) {
-						constraints.add("make");
-						String make = promptUserForString("Enter Make company:");
-						constraints.add(make);
-					} else if (address.equals("2")) {
-						constraints.add("model");
+					if(isAnd){
+						make.add("and");
+					} else {
+						make.add("or");
+					}
+					
+					String result = promptUserForString("Search by: \n1. Make\n2. Model");
+					if (result.equals("1")) {
+						make.add("make");
+						String Smake = promptUserForString("Enter Make company:");
+						make.add(Smake);
+					} else if (result.equals("2")) {
+						make.add("model");
 						String model = promptUserForString("Enter Model of car:");
-						constraints.add(model);
+						make.add(model);
 					} else {
 						System.err.println("Invalid response please try again");
 					}
@@ -371,6 +391,22 @@ public class Main {
 						inputDone = true;
 					} else if (response.equals("y")) {
 						validResponse = true;
+						
+						// ask user if wanted to add constraint with and/or
+						boolean andOrResponse = false;
+						while (!andOrResponse) {
+							String andOR = promptUserForString("add constraints with:\n1. And\n2. Or");
+							if (andOR.equals("1")) {
+								andOrResponse = true;
+								isAnd = true;
+							} else if (andOR.equals("2")) {
+								andOrResponse = true;
+								isAnd = false;
+							} else {
+								System.err.println("Invalid response please try again");
+							}
+						}
+						
 					} else {
 						System.err.println("Invalid response please try again");
 					}
@@ -378,26 +414,43 @@ public class Main {
 			}
 
 			// asks for sorting method
-			String sort = "";
 			boolean validResponse = false;
 			while (!validResponse) {
-				String address = promptUserForString(
+				String feed = promptUserForString(
 						"Sort by: \n1. Average score of all feedbacks\n2. Average score of trusted user feedbacks");
-				if (address.equals("1")) {
+				if (feed.equals("1")) {
 					sort = "1";
 					validResponse = true;
-				} else if (address.equals("2")) {
+				} else if (feed.equals("2")) {
 					sort = "2";
 					validResponse = true;
 				} else {
 					System.err.println("Invalid response please try again");
 				}
 			}
+		}
 
-			// TODO: search
-			// still working on how I should add all the constraints together into searching,
-			// let me know if you have any suggestions
+		// TODO: search
+		// still working on how I should add all the constraints together into
+		// searching,
+		// let me know if you have any suggestions
 
+		ResultSet results = UC.UCBrosing(con, category, address, make, sort);
+
+		int i = 1;
+		try {
+			if (results == null) {
+				System.err.println("No cars with these constraints.");
+			}
+			while (results.next()) {
+
+				System.out.println(i + ". Car ID: " + results.getString("vin") + " Driver ID: "
+						+ results.getString("login") + " Category: " + results.getString("category") + " Comfort: "
+						+ results.getString("comfort"));
+				i++;
+			}
+		} catch (SQLException e) {
+			System.err.println("Error printing suggestions" + e);
 		}
 
 	}
@@ -505,8 +558,8 @@ public class Main {
 			while (results.next()) {
 
 				System.out.println(i + ". Car ID: " + results.getString("vin") + " Driver ID: "
-						+ results.getString("login") + " Category: " + results.getString("category") + 
-						" Comfort: " + results.getString("comfort"));
+						+ results.getString("login") + " Category: " + results.getString("category") + " Comfort: "
+						+ results.getString("comfort"));
 				i++;
 			}
 		} catch (SQLException e) {
@@ -692,6 +745,7 @@ public class Main {
 
 	/**
 	 * Rate feedbacks
+	 * 
 	 * @param con
 	 */
 	private static void RateFeedback(Connector con) {
@@ -731,7 +785,8 @@ public class Main {
 	}
 
 	/**
-	 *  rate if the user is trusted or not
+	 * rate if the user is trusted or not
+	 * 
 	 * @param con
 	 */
 	private static void isTrusted(Connector con) {
