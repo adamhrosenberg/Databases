@@ -29,8 +29,6 @@ public class UC {
 	public static UC newUC(Connector con, String vin, String category, String login, String comfort, String make,
 			String model, String year) {
 
-		// insert into UC (vin, category, login) values ('42242', 'SUV',
-		// 'adam');
 
 		boolean insertsSucessful = true;
 

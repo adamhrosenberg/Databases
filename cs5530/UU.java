@@ -341,9 +341,9 @@ public class UU {
         categories.add("Sedan");
         categories.add("Truck");
         categories.add("Tesla");
-        mMostExpevsiveUC(con, m, categories);
         mMostPopularUC(con, m, categories);
-        mHighestRatedUD(con, m, categories);
+//        mMostExpevsiveUC(con, m, categories);
+//        mHighestRatedUD(con, m, categories);
     }
 
     /**
@@ -362,13 +362,30 @@ public class UU {
         ArrayList<String> mMostPopularUCs = new ArrayList<>();
         System.out.println(m + " most popular UCs by category:");
         ResultSet rs = null;
-        String query = "select Ride.";
-
         try{
+            // select uc.vin, Count(ride.rid) as NumberRidesForVin from UC uc, Ride ride where (ride.vin = uc.vin and uc.category = 'SUV')
+            // Group by uc.vin order by NumberRidesForVin DESC;
+            for(int i = 0; i < categories.size(); i++){
+                String query = "select uc.vin, Count(ride.rid) as NumberRidesForVin, uc.login from UC uc, Ride ride where (ride.vin = uc.vin and uc.category = '"
+                        + categories.get(i) +"') " +
+                        "Group by uc.vin order by NumberRidesForVin DESC;";
+                rs = con.stmt.executeQuery(query);
+                int index = 0;
+                System.out.println("Printing most popular UCs for category: " + categories.get(i));
+                while (rs.next() && index < m) {
+                    String vin = rs.getString("vin");
+                    String num = rs.getString("NumberRidesForVin");
+                    String login = rs.getString("login");
+
+                    System.out.println("VIN #: " + vin + "\tNum rides: " + num + "\tDriver: " + login);
+                    index++;
+                }
+            }
 
         }catch(Exception e){
-            System.err.println("Error when finding m most popular UCs: \n" + e);
+            System.err.println("Error getting most popular UCs" + e);
         }
+
     }
 
 
