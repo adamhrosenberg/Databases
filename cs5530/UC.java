@@ -561,9 +561,10 @@ public class UC {
 		}
 	}
 
-	public static ResultSet getUsefulFeedbacks(Connector con, String login, String count) {
+	public static ArrayList<String> getUsefulFeedbacks(Connector con, String login, String count) {
 
-		ResultSet rs;
+		ResultSet results;
+		ArrayList<String> result = new ArrayList<String>();
 
 		String query = "select f.fid, f.vin, f.login, f.score, f.text, f.date, AVG (r.rating) "
 				+ "as avgRates from Feedback f, Rates r where f.vin in "
@@ -571,20 +572,22 @@ public class UC {
 				+ "and f.fid=r.fid group by f.fid ORDER BY avgRates DESC limit " + count + ";";
 
 		try {
-			rs = con.stmt.executeQuery(query);
-			// ResultSetMetaData metaData = rs.getMetaData();
-			if (!rs.next()) {
-				// not found.
-				rs.close();
-				return null;
-			} else {
-				rs.close();
-				return rs;
+			results = con.stmt.executeQuery(query);
+			while (results.next()) {
+				result.add(results.getString("fid"));
+				result.add(results.getString("vin"));
+				result.add(results.getString("login"));
+				result.add(results.getString("date"));
+				result.add(results.getString("score"));
+				result.add(results.getString("text"));
+				result.add(results.getString("avgRates"));
 			}
+			return result;
 		} catch (Exception e) {
 			System.err.println("Error getting useful feedbacks" + e);
 		}
 		return null;
+		
 	}
 
 	/**

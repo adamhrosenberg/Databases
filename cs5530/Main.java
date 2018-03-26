@@ -289,7 +289,7 @@ public class Main {
 			} else if (c == MENU_RESPONSES.TRUST.getValue()) {
 				isTrusted(con);
 			} else if (c == MENU_RESPONSES.SEARCH.getValue()) {
-				UCBrowsing(con); // not done yet
+				UCBrowsing(con);
 			} else if (c == MENU_RESPONSES.USEFULFEEDBACKS.getValue()) {
 				usefulFeedbacks(con);
 			} else if (c == MENU_RESPONSES.TWODEGREES.getValue()) {
@@ -869,21 +869,13 @@ public class Main {
 		}
 
 		// get and display feedback
-		ResultSet results = UC.getUsefulFeedbacks(con, login, numOfFeedbacks);
+		ArrayList<String> results = UC.getUsefulFeedbacks(con, login, numOfFeedbacks);
 
-		int i = 1;
-		try {
-			if (results == null) {
-				System.err.println("No feedbacks for this driver.");
-			}
-			while (results.next()) {
-				System.out.println(i + ". ID: " + results.getString("fid") + " Score: " + results.getString("score")
-						+ " Comments: " + results.getString("text") + " Date: " + results.getString("date")
-						+ " Useful rating (0-2): " + results.getString("avgRates"));
-				i++;
-			}
-		} catch (SQLException e) {
-			System.err.println("Error printing useful feedbacks" + e);
+		for (int i = 0; i < results.size(); i += 7) {
+			System.out.println(
+					(i + 1) + ". Feedback ID: " + results.get(i) + " \nCar ID: " + results.get(i + 1) + " \nUser ID: "
+							+ results.get(i + 1) + " \nDate: " + results.get(i + 3) + " \nScore: " + results.get(i + 4)
+							+ " \nComments: " + results.get(i + 5) + " \nUseful rating (0-2): " + results.get(i + 6));
 		}
 
 	}
@@ -996,8 +988,9 @@ public class Main {
 		} else {
 			for (int i = 0; i < results.size(); i += 3) {
 				ArrayList<String> carRs = UC.getCtypes(con, results.get(i));
-				
-				UC car = new UC(results.get(i),results.get(i+1),user.getLogin(),results.get(i+2),carRs.get(0),carRs.get(1),carRs.get(2));
+
+				UC car = new UC(results.get(i), results.get(i + 1), user.getLogin(), results.get(i + 2), carRs.get(0),
+						carRs.get(1), carRs.get(2));
 				UC.printUC(car);
 			}
 
