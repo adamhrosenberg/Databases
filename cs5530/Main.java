@@ -468,6 +468,8 @@ public class Main {
 		String from = "";
 		String to = "";
 		String date = "";
+		String destination = "";
+		String numOfPpl = "";
 
 		boolean correctVin = false;
 		while (!correctVin) {
@@ -479,6 +481,9 @@ public class Main {
 			}
 		}
 
+		destination = promptUserForString("Enter the destination for your trip:");
+		numOfPpl = promptUserForString("Enter the number of person will be in the ride:");
+		
 		// get date from user
 		// TODO: need to check date formating
 		date = promptUserForString("Enter the date that you want to record the ride (with the form YYYY/MM/DD) :");
@@ -525,12 +530,14 @@ public class Main {
 			System.out.println("User: " + user.getLogin());
 			System.out.println("VIN: " + vin);
 			System.out.println("Cost: " + cost);
+			System.out.println("Destination: " + destination);
+			System.out.println("Number of people: " + numOfPpl);
 			System.out.println("Date: " + date);
 			System.out.println("From: " + from);
 			System.out.println("To: " + to);
 			String toReserve = promptUserForString("Are the information correct? y/n");
 			if (toReserve.equals("y")) {
-				if (UC.Reserve(con, vin, pid, cost, date, user.getLogin())) {
+				if (UC.Reserve(con, vin, pid, cost, date, user.getLogin(), destination, numOfPpl)) {
 					isReserved = true;
 					System.out.println("RESERVED");
 					suggestions(con, vin);
@@ -581,6 +588,8 @@ public class Main {
 		String cost = "";
 		String from = "";
 		String to = "";
+		String destination = "";
+		String numOfPpl = "";
 
 		// get Vin for car and check if it exists
 		boolean correctVin = false;
@@ -592,6 +601,9 @@ public class Main {
 				correctVin = true;
 			}
 		}
+		
+		destination = promptUserForString("Enter the destination for your trip:");
+		numOfPpl = promptUserForString("Enter the number of person will be in the ride:");
 
 		// get date from user
 		// TODO: need to check date formating
@@ -642,12 +654,14 @@ public class Main {
 			System.out.println("User: " + user.getLogin());
 			System.out.println("VIN: " + vin);
 			System.out.println("Cost: " + cost);
+			System.out.println("Destination: " + destination);
+			System.out.println("Number of people: " + numOfPpl);
 			System.out.println("Date: " + date);
 			System.out.println("From: " + from);
 			System.out.println("To: " + to);
 			String toReserve = promptUserForString("Are the information correct? y/n");
 			if (toReserve.equals("y")) {
-				if (UC.recordRides(con, rid, vin, cost, date, user.getLogin(), from, to)) {
+				if (UC.recordRides(con, rid, vin, cost, date, user.getLogin(), from, to, destination, numOfPpl)) {
 					isReserved = true;
 					System.out.println("RECORDED");
 				}
@@ -947,19 +961,21 @@ public class Main {
 
 		String make = "";
 		String model = "";
+		String year = "";
 		boolean CtypeInfo = true;
 		while (CtypeInfo) {
-			make = promptUserForString("Please enter the make year for your car");
-			if (make.matches("[0-9]+") && make.length() == 4) {
+			year = promptUserForString("Please enter the make year for your car");
+			if (year.matches("[0-9]+") && year.length() == 4) {
 				CtypeInfo = false;
 			} else {
 				System.out.println("Please enter the make year in xxxx format. Please enter a new one.");
 			}
 		}
-
+		
+		make = promptUserForString("Please enter the make company for your car");
 		model = promptUserForString("Please enter the model for your car");
 
-		UC car = UC.newUC(con, vin, category, user.getLogin(), comfort, make, model);
+		UC car = UC.newUC(con, vin, category, user.getLogin(), comfort, make, model, year);
 		if (car != null) {
 			// UC created. print out the details.
 			System.out.println("Succesfully added car with these details:");
@@ -996,10 +1012,11 @@ public class Main {
 					String vin = promptUserForString("Enter vin for car: ");
 					String category = promptUserForString("Enter adjusted category: ");
 					String comfort = promptUserForString("Enter adjusted comfort: ");
-					String make = promptUserForString("Enter adjusted make year: ");
+					String make = promptUserForString("Enter adjusted make company: ");
 					String model = promptUserForString("Enter adjusted model: ");
+					String year = promptUserForString("Enter adjusted make year: ");
 
-					UC car = new UC(vin, category, user.getLogin(), comfort, make, model);
+					UC car = new UC(vin, category, user.getLogin(), comfort, make, model, year);
 					UC.editUC(con, car);
 
 					boolean validResponse = true;

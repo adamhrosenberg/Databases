@@ -14,18 +14,20 @@ public class UC {
 	private String comfort;
 	private String make;
 	private String model;
+	private String year;
 
-	public UC(String vin, String category, String login, String comfort, String make, String model) {
+	public UC(String vin, String category, String login, String comfort, String make, String model, String year) {
 		this.vin = vin;
 		this.login = login;
 		this.category = category;
 		this.comfort = comfort;
 		this.make = make;
 		this.model = model;
+		this.year = year;
 	}
 
 	public static UC newUC(Connector con, String vin, String category, String login, String comfort, String make,
-			String model) {
+			String model, String year) {
 
 		// insert into UC (vin, category, login) values ('42242', 'SUV',
 		// 'adam');
@@ -33,7 +35,7 @@ public class UC {
 		boolean insertsSucessful = true;
 
 		String query = "insert into UC (vin, category, login) values ('" + vin + "', '" + category + "', '" + login
-				+ "');";
+				+ "', '" + comfort + "');";
 
 		try {
 			int result = con.stmt.executeUpdate(query);
@@ -50,7 +52,7 @@ public class UC {
 		// (could possibly put in a different method same with editUC)
 
 		// Check if the make, model is already in the database
-		String tid = checkIfCtypeExist(con, make, model);
+		String tid = checkIfCtypeExist(con, make, model, year);
 		if (tid.equals("")) {
 
 			tid = getNextId(con, "tid", "Period");
@@ -60,7 +62,8 @@ public class UC {
 
 			// create new Ctypes
 			if (insertsSucessful) {
-				String CtypesQuery = "insert into Ctypes values ('" + tid + "', '" + make + "', '" + model + "');";
+				String CtypesQuery = "insert into Ctypes values ('" + tid + "', '" + make + "', '" + model + "', '"
+						+ year + "');";
 				try {
 					int result = con.stmt.executeUpdate(CtypesQuery);
 					if (result <= 0) {
@@ -86,13 +89,13 @@ public class UC {
 					System.out.println("insert into IsCtypes failed");
 					insertsSucessful = false;
 				} else {
-					return new UC(vin, category, login, comfort, make, model);
+					return new UC(vin, category, login, comfort, make, model, year);
 				}
 			} catch (Exception e) {
 				System.err.println("Error adding to IsCtypes" + e);
 			}
 		} else if (insertsSucessful && dup) {
-			return new UC(vin, category, login, comfort, make, model);
+			return new UC(vin, category, login, comfort, make, model, year);
 		}
 
 		// default return.
@@ -149,8 +152,8 @@ public class UC {
 		// method)
 
 		// Check if the make, model is already in the database
-		String tid = checkIfCtypeExist(con, car.getMake(), car.getModel());
-		if (tid.equals("")) {
+		String tid = checkIfCtypeExist(con, car.getMake(), car.getModel(), car.getYear());
+		if (tid.equals("") || tid == null) {
 
 			tid = getNextId(con, "tid", "Period");
 			if (tid.equals("")) {
@@ -160,7 +163,7 @@ public class UC {
 			// create new Ctypes
 			if (insertsSucessful) {
 				String CtypesQuery = "insert into Ctypes values ('" + tid + "', '" + car.getMake() + "', '"
-						+ car.getModel() + "');";
+						+ car.getModel() + "', '" + car.getYear() + "');";
 				try {
 					int result = con.stmt.executeUpdate(CtypesQuery);
 					if (result <= 0) {
@@ -186,14 +189,14 @@ public class UC {
 					insertsSucessful = false;
 				} else {
 					return new UC(car.getVin(), car.getCategory(), car.getLogin(), car.getComfort(), car.getMake(),
-							car.getModel());
+							car.getModel(), car.getYear());
 				}
 			} catch (Exception e) {
 				System.err.println("Error adding to IsCtypes" + e);
 			}
 		} else if (insertsSucessful && dup) {
 			return new UC(car.getVin(), car.getCategory(), car.getLogin(), car.getComfort(), car.getMake(),
-					car.getModel());
+					car.getModel(), car.getYear());
 		}
 
 		return null;
@@ -299,13 +302,16 @@ public class UC {
 	 * @param pid
 	 * @param cost
 	 * @param time
+	 * @param numOfPpl
+	 * @param destination
 	 * @param user
 	 * @return
 	 */
-	public static boolean Reserve(Connector con, String vin, String pid, String cost, String time, String login) {
+	public static boolean Reserve(Connector con, String vin, String pid, String cost, String time, String login,
+			String destination, String numOfPpl) {
 
 		String query = "insert into Reserve values ('" + pid + "', '" + vin + "', '" + login + "', '" + cost + "', '"
-				+ time + "');";
+				+ time + "', '" + destination + "', '" + numOfPpl + "');";
 
 		try {
 			int result = con.stmt.executeUpdate(query);
@@ -353,15 +359,17 @@ public class UC {
 	 * @param vin
 	 * @param pid
 	 * @param cost
+	 * @param numOfPpl
+	 * @param destination
 	 * @param time
 	 * @param user
 	 * @return
 	 */
 	public static boolean recordRides(Connector con, String rid, String vin, String cost, String date, String login,
-			String from, String to) {
+			String from, String to, String destination, String numOfPpl) {
 
 		String query = "insert into Ride values ('" + rid + "', '" + vin + "', '" + cost + "', '" + date + "', '"
-				+ login + "', '" + from + "', '" + to + "');";
+				+ login + "', '" + from + "', '" + to + "', '" + numOfPpl + "', '" + destination + "');";
 
 		try {
 			int result = con.stmt.executeUpdate(query);
@@ -574,7 +582,7 @@ public class UC {
 	 * @param vin
 	 * @return
 	 */
-	public static String checkIfCtypeExist(Connector con, String make, String model) {
+	public static String checkIfCtypeExist(Connector con, String make, String model, String year) {
 
 		ResultSet rs;
 		String tid = "";
@@ -687,6 +695,10 @@ public class UC {
 
 	public String getModel() {
 		return this.model;
+	}
+
+	public String getYear() {
+		return this.year;
 	}
 
 	public static void printUC(UC car) {
