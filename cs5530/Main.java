@@ -812,7 +812,7 @@ public class Main {
 			// get User for car and check if it exists
 			boolean correctUser = false;
 			while (!correctUser) {
-				ratedUser = promptUserForString("Enter username of User being rated:");
+				ratedUser = promptUserForString("Enter username of User trusting/not trusting:");
 				if (!UU.isLoginDuplicate(ratedUser, con.stmt)) {
 					System.err.println("There are user with this username. Please enter a new one.");
 				} else {
