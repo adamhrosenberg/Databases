@@ -315,7 +315,7 @@ public class UU {
                 users.add(user);
             }
         }catch(Exception e){
-            System.err.println("Error checknig second degree" + e);
+            System.err.println("Error checking second degree" + e);
         }
 
 
@@ -342,7 +342,8 @@ public class UU {
         categories.add("Truck");
         categories.add("Tesla");
         mMostPopularUC(con, m, categories);
-//        mMostExpevsiveUC(con, m, categories);
+        System.out.println("\n");
+        mMostExpevsiveUC(con, m, categories);
 //        mHighestRatedUD(con, m, categories);
     }
 
@@ -399,6 +400,30 @@ public class UU {
         ArrayList<String> mMostExpensiveUCs = new ArrayList<>();
         System.out.println(m + " most expensive UCs by category:");
 
+        ResultSet rs = null;
+        try{
+            // select uc.vin, Count(ride.rid) as NumberRidesForVin from UC uc, Ride ride where (ride.vin = uc.vin and uc.category = 'SUV')
+            // Group by uc.vin order by NumberRidesForVin DESC;
+            for(int i = 0; i < categories.size(); i++){
+                String query = "select uc.vin, AVG(ride.cost) as AverageRidePrice, uc.login from UC uc, Ride ride where (uc.vin = ride.vin and uc.category = '"
+                        + categories.get(i) +
+                        "') Group by uc.vin order by avg(ride.cost) desc;";
+                rs = con.stmt.executeQuery(query);
+                int index = 0;
+                System.out.println("Printing most expensive UCs for category: " + categories.get(i));
+                while (rs.next() && index < m) {
+                    String vin = rs.getString("vin");
+                    String price = rs.getString("AverageRidePrice");
+                    String login = rs.getString("login");
+
+                    System.out.println("VIN #: " + vin + "\tAverage cost of rides: $" + price + "\tDriver: " + login);
+                    index++;
+                }
+            }
+
+        }catch(Exception e){
+            System.err.println("Error getting most popular UCs" + e);
+        }
     }
 
 
