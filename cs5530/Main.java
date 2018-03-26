@@ -415,11 +415,11 @@ public class Main {
 					String Saddress = promptUserForString("Search by: \n1. City\n2. State");
 					if (Saddress.equals("1")) {
 						address.add("city");
-						String city = promptUserForString("Enter city name:");
+						String city = promptUserForString("Enter city name:").toLowerCase();
 						address.add(city);
 					} else if (Saddress.equals("2")) {
 						address.add("state");
-						String state = promptUserForString("Enter state abbreviation:");
+						String state = promptUserForString("Enter state abbreviation:").toLowerCase();
 						address.add(state);
 					} else {
 						System.err.println("Invalid response please try again");
@@ -436,11 +436,11 @@ public class Main {
 					String result = promptUserForString("Search by: \n1. Make\n2. Model");
 					if (result.equals("1")) {
 						make.add("make");
-						String Smake = promptUserForString("Enter Make company:");
+						String Smake = promptUserForString("Enter Make company:").toLowerCase();
 						make.add(Smake);
 					} else if (result.equals("2")) {
 						make.add("model");
-						String model = promptUserForString("Enter Model of car:");
+						String model = promptUserForString("Enter Model of car:").toLowerCase();
 						make.add(model);
 					} else {
 						System.err.println("Invalid response please try again");
@@ -727,6 +727,7 @@ public class Main {
 				if (UC.recordRides(con, rid, vin, cost, date, user.getLogin(), from, to, destination, numOfPpl)) {
 					isReserved = true;
 					System.out.println("RECORDED");
+					suggestions(con, vin);
 				}
 			} else if (toReserve.equals("n")) {
 				Rides(con);
@@ -1018,7 +1019,7 @@ public class Main {
 		String year = "";
 		boolean CtypeInfo = true;
 		while (CtypeInfo) {
-			year = promptUserForString("Please enter the make year for your car");
+			year = promptUserForString("Please enter the make year for your car").toLowerCase();
 			if (year.matches("[0-9]+") && year.length() == 4) {
 				CtypeInfo = false;
 			} else {
@@ -1026,8 +1027,8 @@ public class Main {
 			}
 		}
 
-		make = promptUserForString("Please enter the make company for your car");
-		model = promptUserForString("Please enter the model for your car");
+		make = promptUserForString("Please enter the make company for your car").toLowerCase();
+		model = promptUserForString("Please enter the model for your car").toLowerCase();
 
 		UC car = UC.newUC(con, vin, category, user.getLogin(), comfort, make, model, year);
 		if (car != null) {
@@ -1065,9 +1066,9 @@ public class Main {
 				String category = categorySelect();
 				System.out.println("Enter adjusted comfort: ");
 				String comfort = comfortSelect();
-				String make = promptUserForString("Enter adjusted make company: ");
-				String model = promptUserForString("Enter adjusted model: ");
-				String year = promptUserForString("Enter adjusted make year: ");
+				String make = promptUserForString("Enter adjusted make company: ").toLowerCase();
+				String model = promptUserForString("Enter adjusted model: ").toLowerCase();
+				String year = promptUserForString("Enter adjusted make year: ").toLowerCase();
 
 				UC car = new UC(vin, category, user.getLogin(), comfort, make, model, year);
 				UC.editUC(con, car);
@@ -1103,7 +1104,7 @@ public class Main {
 		String login = "";
 		boolean duplicate = true;
 		while (duplicate) {
-			login = promptUserForString("Enter username:");
+			login = promptUserForString("Enter username:").toLowerCase();
 			if (!user.isLoginDuplicate(login, connector.stmt)) {
 				duplicate = false;
 			} else {
@@ -1130,9 +1131,9 @@ public class Main {
 		String first = promptUserForString("Enter first name: ");
 		String last = promptUserForString("Enter last name: ");
 		System.out.println("Enter address:");
-		String address = promptUserForString("Enter street: ");
-		String city = promptUserForString("Enter city: ");
-		String state = promptUserForString("Enter state abbreviation: ");
+		String address = promptUserForString("Enter street: ").toLowerCase();
+		String city = promptUserForString("Enter city: ").toLowerCase();
+		String state = promptUserForString("Enter state abbreviation: ").toLowerCase();
 		String num = promptUserForString("Enter phone number: i.e. 8015555555 ");
 		String pass = promptUserForString("Enter password: ");
 

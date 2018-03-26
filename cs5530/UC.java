@@ -425,7 +425,7 @@ public class UC {
 					+ "from UC car, Feedback feed where car.vin = feed.vin";
 		} else if (sort != null && sort.equals("2")) {
 			query = "select car.vin, car.login, car.category, car.comfort, avg(feed.score) as score "
-					+ "from UC car, Feedback feed Trust trust where car.vin = feed.vin and trust.isTrusted = '1'";
+					+ "from UC car, Feedback feed, Trust trust where car.vin = feed.vin and trust.isTrusted = '1'";
 		}
 
 		for (int i = 0; i < category.size(); i += 2) {
